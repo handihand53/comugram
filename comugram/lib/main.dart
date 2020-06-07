@@ -2,6 +2,7 @@ import 'package:comugram/RegisterForm.dart';
 import 'package:flutter/material.dart';
 
 import 'Login.dart';
+import 'ResetPassword.dart';
 
 void main() => runApp(MyApp());
 
@@ -13,6 +14,7 @@ class MyApp extends StatelessWidget {
       routes: <String, WidgetBuilder>{
         '/': (context) => Login(),
         '/register': (context) => RegisterForm(),
+        '/resetPassword': (context) => ResetPassword(),
       },
     );
   }
