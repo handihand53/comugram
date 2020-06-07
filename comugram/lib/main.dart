@@ -1,3 +1,4 @@
+import 'package:comugram/Home.dart';
 import 'package:comugram/RegisterForm.dart';
 import 'package:comugram/SplashScreen.dart';
 import 'package:flutter/cupertino.dart';
@@ -17,10 +18,10 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: <String, WidgetBuilder>{
-        '/login': (context) => Login(),
         '/': (context) => SplashScreenPage(),
+        '/login': (context) => Login(),
+        '/home': (context) => Home(),
         '/daftar': (context) => RegisterForm(),
-        '/': (context) => Login(),
         '/register': (context) => RegisterForm(),
         '/resetPassword': (context) => ResetPassword(),
       },

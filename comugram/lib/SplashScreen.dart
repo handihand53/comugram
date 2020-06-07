@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:comugram/MainMenu.dart';
+import 'package:comugram/Home.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -28,7 +28,7 @@ class _SplashScreenState extends State<SplashScreenPage> {
   Future<void> navigationPage() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     if (user != null) {
-      Navigator.pushReplacement(this.context, MaterialPageRoute(builder: (BuildContext context) => MainMenu()));
+      Navigator.pushReplacement(this.context, MaterialPageRoute(builder: (BuildContext context) => Home()));
     } else{
       Navigator.pushReplacement(this.context, MaterialPageRoute(builder: (BuildContext context) => Login()));
     }
@@ -46,13 +46,13 @@ class _SplashScreenState extends State<SplashScreenPage> {
               child: Image.asset(
                 'images/comugram logo 2.png',
                 width: 500,
-                height: 500,
+                height: 450,
               ),
             ),
             Text(
               'Copyright \u00a9 2020 by Comugram\'s Team',
               style: TextStyle(
-                fontSize: 17.0,
+                fontSize: 15.0,
               ),
             ),
           ],

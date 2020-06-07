@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+import 'Home.dart';
+
 class Login extends StatefulWidget {
   @override
   _LoginState createState() => _LoginState();
@@ -101,7 +103,7 @@ class _LoginState extends State<Login> {
                     width: 350,
                     child: TextFormField(
                       focusNode: _focusNodeEmail,
-//                  controller: email,
+                      controller: email,
                       style: TextStyle(
                         fontSize: 20,
                       ),
@@ -133,7 +135,7 @@ class _LoginState extends State<Login> {
                     width: 350,
                     child: TextFormField(
                       focusNode: _focusNodePassword,
-//                  controller: password,
+                      controller: password,
                       obscureText: true,
                       style: TextStyle(
                         fontSize: 20,
@@ -303,7 +305,8 @@ class _LoginState extends State<Login> {
 
   void doLogin() {
     signIn().then((FirebaseUser user) {
-//      navigationPinPage();
+      if (user != null)
+        Navigator.pushReplacement(this.context, MaterialPageRoute(builder: (BuildContext context) => Home()));
     }).catchError((e) => print(e.toString()));
   }
 
@@ -316,10 +319,10 @@ class _LoginState extends State<Login> {
 
   void doLoginGoogle() {
     googleSignIn().then((FirebaseUser user) {
-//      navigationPinPage();
+      if (user != null)
+        Navigator.pushReplacement(this.context, MaterialPageRoute(builder: (BuildContext context) => Home()));
     }).catchError((e) => print(e.toString()));
   }
-
 
   Future<FirebaseUser> googleSignIn() async {
     GoogleSignInAccount gsia = await GoogleSignIn().signIn();
