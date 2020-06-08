@@ -2,9 +2,9 @@ import 'package:comugram/services/FirestoreServices.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'Home.dart';
 import 'Validator.dart';
 import 'model/User.dart';
-import 'MainMenu.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class RegisterForm extends StatefulWidget {
@@ -39,7 +39,7 @@ class _RegisterFormState extends State<RegisterForm> with Validation{
     RegisUnamePass(email, pass).then((FirebaseUser user){
       userModel = User(uid: user.uid, username: uname,email: user.email, pass: pass);
       Fs.InsertDataUser(userModel);
-      Navigator.pushReplacement(this.context, MaterialPageRoute(builder: (BuildContext context) => MainMenu()));
+      Navigator.pushReplacement(this.context, MaterialPageRoute(builder: (BuildContext context) => Home()));
     }).catchError((e) =>print(e.toString()));
   }
 
@@ -208,7 +208,7 @@ class _RegisterFormState extends State<RegisterForm> with Validation{
                 TextSpan(text: 'Sudah memiliki akun? ',style: TextStyle(color: Colors.black)),
                 TextSpan(text: 'Login disini', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
                   recognizer: TapGestureRecognizer()..onTap = () {
-                    Navigator.pushNamed(context, '/login');
+                    Navigator.pop(context);
                   }, ),
               ])
               ),

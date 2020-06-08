@@ -1,5 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
+import 'Home.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -9,6 +13,10 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   FocusNode _focusNodeEmail;
   FocusNode _focusNodePassword;
+
+  TextEditingController email = TextEditingController();
+  TextEditingController password = TextEditingController();
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
   @override
   void dispose() {
@@ -95,7 +103,7 @@ class _LoginState extends State<Login> {
                     width: 350,
                     child: TextFormField(
                       focusNode: _focusNodeEmail,
-//                  controller: email,
+                      controller: email,
                       style: TextStyle(
                         fontSize: 20,
                       ),
@@ -127,7 +135,7 @@ class _LoginState extends State<Login> {
                     width: 350,
                     child: TextFormField(
                       focusNode: _focusNodePassword,
-//                  controller: password,
+                      controller: password,
                       obscureText: true,
                       style: TextStyle(
                         fontSize: 20,
@@ -186,6 +194,22 @@ class _LoginState extends State<Login> {
                   SizedBox(
                     height: 12,
                   ),
+                  InkWell(
+                    child: Text(
+                      'Lupa password',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.orange,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.pushNamed(context, '/resetPassword');
+                    },
+                  ),
+                  SizedBox(
+                    height: 40,
+                  ),
                   Text(
                     "Belum punya akun ?",
                     style: TextStyle(
@@ -202,34 +226,21 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                     onTap: () {
-                      Navigator.pushNamed(context, '/daftar');
+                      Navigator.pushNamed(context, '/register');
                     },
                   ),
                   SizedBox(
-                    height: 40,
+                    height: 20,
                   ),
-                  InkWell(
-                    child: Text(
-                      'Lupa password',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.orange,
-                        fontWeight: FontWeight.w600,
-                      ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(child: Divider()),
+                        Text("atau"),
+                        Expanded(child: Divider()),
+                      ],
                     ),
-                    onTap: () {
-                      Navigator.pushNamed(context, '/reset');
-                    },
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    children: <Widget>[
-                      Expanded(child: Divider()),
-                      Text("atau"),
-                      Expanded(child: Divider()),
-                    ],
                   ),
                   SizedBox(
                     height: 10,
@@ -258,28 +269,28 @@ class _LoginState extends State<Login> {
                           ),
                           onPressed: doLoginGoogle,
                         ),
-                        RaisedButton(
-                          elevation: 2,
-                          color: Colors.blue,
-                          padding: EdgeInsets.symmetric(horizontal: 10.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: <Widget>[
-                              Image.asset(
-                                'images/facebook.png',
-                                height: 40.0,
-                                width: 40.0,
-                              ),
-                              Text(
-                                "Sign in with Facebook",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                          onPressed: doLoginFacebook,
-                        ),
+//                        RaisedButton(
+//                          elevation: 2,
+//                          color: Colors.blue,
+//                          padding: EdgeInsets.symmetric(horizontal: 10.0),
+//                          child: Row(
+//                            mainAxisAlignment: MainAxisAlignment.start,
+//                            children: <Widget>[
+//                              Image.asset(
+//                                'images/facebook.png',
+//                                height: 40.0,
+//                                width: 40.0,
+//                              ),
+//                              Text(
+//                                "Sign in with Facebook",
+//                                style: TextStyle(
+//                                  color: Colors.white,
+//                                ),
+//                              ),
+//                            ],
+//                          ),
+//                          onPressed: doLoginFacebook,
+//                        ),
                       ],
                     ),
                   ),
@@ -292,11 +303,40 @@ class _LoginState extends State<Login> {
     );
   }
 
-  void doLogin() {}
+  void doLogin() {
+    signIn().then((FirebaseUser user) {
+      if (user != null)
+        Navigator.pushReplacement(this.context, MaterialPageRoute(builder: (BuildContext context) => Home()));
+    }).catchError((e) => print(e.toString()));
+  }
 
-  void doLoginGoogle() {}
+  Future<FirebaseUser> signIn() async {
+    AuthResult result = await _firebaseAuth.signInWithEmailAndPassword(
+        email: email.text, password: password.text);
+    FirebaseUser user = result.user;
+    return user;
+  }
 
-  void doLoginFacebook() {}
+  void doLoginGoogle() {
+    googleSignIn().then((FirebaseUser user) {
+      if (user != null)
+        Navigator.pushReplacement(this.context, MaterialPageRoute(builder: (BuildContext context) => Home()));
+    }).catchError((e) => print(e.toString()));
+  }
+
+  Future<FirebaseUser> googleSignIn() async {
+    GoogleSignInAccount gsia = await GoogleSignIn().signIn();
+    GoogleSignInAuthentication gsiauth = await gsia.authentication;
+
+    AuthCredential credential = GoogleAuthProvider.getCredential(
+        idToken: gsiauth.idToken, accessToken: gsiauth.accessToken);
+
+    FirebaseUser user =
+        (await FirebaseAuth.instance.signInWithCredential(credential)).user;
+    return user;
+  }
+
+//  void doLoginFacebook() {}
 }
 
 class CustomShapeClipper extends CustomClipper<Path> {
