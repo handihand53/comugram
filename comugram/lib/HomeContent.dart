@@ -8,6 +8,7 @@ class HomeContent extends StatefulWidget {
 
 class _HomeContentState extends State<HomeContent> {
   List<Widget> listOfData = new List();
+  ScrollController _scrollController = new ScrollController();
 
   List<InlineSpan> listOfText() {
     String s =
@@ -92,11 +93,16 @@ class _HomeContentState extends State<HomeContent> {
   void initState() {
     getList();
     super.initState();
+//    WidgetsBinding.instance
+//        .addPostFrameCallback((_) => _refreshIndicatorKey.currentState.show());
   }
+
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      new GlobalKey<RefreshIndicatorState>();
 
   void getList() {
     // foreach
-    for(int i =0; i<10; i++){
+    for (int i = 0; i < 10; i++) {
       listOfData.add(
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -162,16 +168,29 @@ class _HomeContentState extends State<HomeContent> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: <Widget>[
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: listOfData,
-          )
-        ],
+    return RefreshIndicator(
+      key: _refreshIndicatorKey,
+      onRefresh: _refresh,
+      child: NotificationListener( // ini untuk listen scroll, nantinya digunakan untuk infinity scroll
+        child: ListView(
+          controller: _scrollController,
+          children:
+              listOfData,
+        ),
+        onNotification: (t) {
+          if (t is ScrollEndNotification) {
+            print(_scrollController.position.maxScrollExtent); // detect max scroll
+            print(_scrollController.position.pixels); //detect current heigt pixels
+          }
+        },
       ),
     );
+  }
+
+  // untuk logic nantinya ketika user melakukan refresh
+  // karena belum ada logic jadi masih ada error
+  Future<Null> _refresh() {
+    setState(() {});
+    return null;
   }
 }
