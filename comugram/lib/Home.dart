@@ -1,4 +1,5 @@
 import 'package:comugram/HomeContent.dart';
+import 'package:comugram/community.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -41,7 +42,7 @@ class _HomeState extends State<Home> {
     HomeContent(),
     Search(),
     HomeContent(),
-    HomeContent(),
+    Community(),
     HomeContent(),
   ];
 
