@@ -6,6 +6,7 @@ import 'Home.dart';
 import 'Validator.dart';
 import 'model/User.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'TambahKomunitas.dart';
 
 class RegisterForm extends StatefulWidget {
 
@@ -37,7 +38,7 @@ class _RegisterFormState extends State<RegisterForm> with Validation{
   }
   void doRegis(String email, String pass, String uname) async{
     RegisUnamePass(email, pass).then((FirebaseUser user){
-      userModel = User(uid: user.uid, username: uname,email: user.email, pass: pass);
+      userModel = User(uid: user.uid, username: uname,email: user.email);
       Fs.InsertDataUser(userModel);
       Navigator.pushReplacement(this.context, MaterialPageRoute(builder: (BuildContext context) => Home()));
     }).catchError((e) =>print(e.toString()));
@@ -87,7 +88,7 @@ class _RegisterFormState extends State<RegisterForm> with Validation{
                             decoration: InputDecoration(
                               labelText: 'Username',
                               prefixIcon: Icon(
-                                Icons.supervised_user_circle,
+                                Icons.account_box,
                                 color: Colors.grey,
                               ),
                               labelStyle: TextStyle(color: Colors.grey),

@@ -22,4 +22,17 @@ class Validation {
     }
     return null;
   }
+
+  String validateNameKomunitas(String value) {
+    if (value.isEmpty || value.length <= 3) { //JIKA VALUE KOSONG
+      return 'Biarkan orang lain tahu nama Komunitas Anda'; //MAKA PESAN DITAMPILKAN
+    }
+    return null;
+  }
+  String validateDesk(String value) {
+    if (value.isEmpty || value.length <= 3 || value.length > 3000) { //JIKA VALUE KOSONG
+      return 'Biarkan orang lain tahu Komunitas anda secara ringkas'; //MAKA PESAN DITAMPILKAN
+    }
+    return null;
+  }
 }
