@@ -72,18 +72,6 @@ class _LoginState extends State<Login> {
                   decoration: BoxDecoration(color: Colors.orange),
                 ),
               ),
-//              Padding(
-//                padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 20.0),
-//                child: Row(
-//                  children: <Widget>[
-//                    Image.asset(
-//                      'images/work.png',
-//                      width: 330,
-//                      height: 230,
-//                    ),
-//                  ],
-//                ),
-//              ),
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
