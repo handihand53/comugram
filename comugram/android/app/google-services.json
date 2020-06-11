@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "271729496101",
+    "firebase_url": "https://flutter-comugram.firebaseio.com",
+    "project_id": "flutter-comugram",
+    "storage_bucket": "flutter-comugram.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:271729496101:android:f9aac4f45af49b98a62fcc",
+        "android_client_info": {
+          "package_name": "id.ac.ukdw.comugram"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "271729496101-fff53n87lq5j4b5eppbb3o4nmfpqd2ha.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "id.ac.ukdw.comugram",
+            "certificate_hash": "4f29ef7c312664e4bdec26828a210e3785e04cc8"
+          }
+        },
+        {
+          "client_id": "271729496101-erru02kgkbgdh09b090maump5dd8phav.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAgwSyTA1vpr77NnXJH5xKtQX65IXnVsuE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "271729496101-erru02kgkbgdh09b090maump5dd8phav.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
