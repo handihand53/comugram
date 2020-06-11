@@ -1,12 +1,11 @@
-import 'dart:convert';
 import 'package:comugram/Home.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:comugram/RegisterForm.dart';
 
 import 'Login.dart';
+import 'TambahKomunitas.dart';
 
 class SplashScreenPage extends StatefulWidget {
   @override
@@ -28,7 +27,7 @@ class _SplashScreenState extends State<SplashScreenPage> {
   Future<void> navigationPage() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     if (user != null) {
-      Navigator.pushReplacement(this.context, MaterialPageRoute(builder: (BuildContext context) => Home()));
+      Navigator.pushReplacement(this.context, MaterialPageRoute(builder: (BuildContext context) => KomunitasForm()));
     } else{
       Navigator.pushReplacement(this.context, MaterialPageRoute(builder: (BuildContext context) => Login()));
     }
