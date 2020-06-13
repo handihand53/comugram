@@ -27,7 +27,7 @@ class _HomeState extends State<Home> {
       // index didapat dari setiap user melakukan click pada bottom navigation
       // halaman yg ditempelkan pada tampilan bisa di liat di list<widget> _children
 
-      if (_currentIndex != 1) {
+      if (_currentIndex != 1 || _currentIndex != 4) {
         _showAppbar = true;
       } else {
         _showAppbar = false;
