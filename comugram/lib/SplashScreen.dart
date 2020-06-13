@@ -27,9 +27,11 @@ class _SplashScreenState extends State<SplashScreenPage> {
   Future<void> navigationPage() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     if (user != null) {
-      Navigator.pushReplacement(this.context, MaterialPageRoute(builder: (BuildContext context) => KomunitasForm()));
-    } else{
-      Navigator.pushReplacement(this.context, MaterialPageRoute(builder: (BuildContext context) => Login()));
+      Navigator.pushReplacement(this.context,
+          MaterialPageRoute(builder: (BuildContext context) => Home()));
+    } else {
+      Navigator.pushReplacement(this.context,
+          MaterialPageRoute(builder: (BuildContext context) => Login()));
     }
   }
 

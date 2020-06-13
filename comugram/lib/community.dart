@@ -1,3 +1,4 @@
+import 'package:comugram/detailCommunity.dart';
 import 'package:flutter/material.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 
@@ -52,7 +53,13 @@ class _CommunityState extends State<Community> {
                         ),
                       ),
                       RaisedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                              this.context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      DetailCommunity()));
+                        },
                         child: Text(
                           "Lihat",
                           style: TextStyle(color: Colors.white),
