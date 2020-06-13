@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import 'model/Komunitas.dart';
 
 class Search extends StatefulWidget {
   @override
@@ -9,6 +12,24 @@ class Search extends StatefulWidget {
 class _SearchState extends State<Search> {
   FocusNode _focusNodeSearch;
   TextEditingController search = TextEditingController();
+  List<Komunitas> listKomunitas = new List();
+  List<Widget> listSearch = new List();
+
+  Future<void> getKomunitasDataPopuler() async {
+    await Firestore.instance.collection('Komunitas').snapshots().listen((s) {
+      s.documents.forEach((d) {
+        listKomunitas.add(Komunitas(
+          uid: d['id'],
+          deskripsi: d['deskripsi'],
+          imageUrl: d['imageUrl'],
+          kategori: d['kategori'],
+          namaKomunitas: d['namaKomunitas'],
+          owner: d['owner'],
+          tanggalBuat: d['tanggalBuat'],
+        ));
+      });
+    });
+  }
 
   @override
   void dispose() {
@@ -19,6 +40,9 @@ class _SearchState extends State<Search> {
   @override
   void initState() {
     super.initState();
+    getKomunitasDataPopuler().then((s) {
+      setState(() {});
+    });
     _focusNodeSearch = new FocusNode();
     _focusNodeSearch.addListener(_onOnFocusNodeEvent);
   }
@@ -67,6 +91,8 @@ class _SearchState extends State<Search> {
 
   @override
   Widget build(BuildContext context) {
+    listSearch = [];
+    listPage();
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -114,7 +140,7 @@ class _SearchState extends State<Search> {
     );
   }
 
-  void _showDialog() {
+  void _showDialog(String desc, String img, String name, String id) {
     showGeneralDialog(
         barrierColor: Colors.black.withOpacity(0.5),
         transitionBuilder: (context, a1, a2, widget) {
@@ -137,8 +163,8 @@ class _SearchState extends State<Search> {
                     width: 200,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(5.0),
-                      child: Image.asset(
-                        ('images/sepeda.jpg'),
+                      child: Image.network(
+                        img,
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -164,7 +190,7 @@ class _SearchState extends State<Search> {
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     Text(
-                      'Pencinta Sepeda \'GOWES\'',
+                      name,
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 20,
@@ -216,8 +242,7 @@ class _SearchState extends State<Search> {
                     Container(
                       height: 150,
                       child: SingleChildScrollView(
-                        child: Text(
-                            "Komunitas \'GOWES\' lahir di Yogyakarta pada tahun 1992. Komunitas ini banyak melahirkan event-event besar. Ayo join bersama kami untuk membuat komunitas sehat. lahir di Yogyakarta pada tahun 1992. Komunitas ini banyak melahirkan event-event besar. Ayo join bersama kami untuk membuat komunitas sehat. lahir di Yogyakarta pada tahun 1992. Komunitas ini banyak melahirkan event-event besar. Ayo join bersama kami untuk membuat komunitas sehat. lahir di Yogyakarta pada tahun 1992. Komunitas ini banyak melahirkan event-event besar. Ayo join bersama kami untuk membuat komunitas sehat. lahir di Yogyakarta pada tahun 1992. Komunitas ini banyak melahirkan event-event besar. Ayo join bersama kami untuk membuat komunitas sehat. lahir di Yogyakarta pada tahun 1992. Komunitas ini banyak melahirkan event-event besar. Ayo join bersama kami untuk membuat komunitas sehat. v lahir di Yogyakarta pada tahun 1992. Komunitas ini banyak melahirkan event-event besar. Ayo join bersama kami untuk membuat komunitas sehat.lahir di Yogyakarta pada tahun 1992. Komunitas ini banyak melahirkan event-event besar. Ayo join bersama kami untuk membuat komunitas sehat. lahir di Yogyakarta pada tahun 1992. Komunitas ini banyak melahirkan event-event besar. Ayo join bersama kami untuk membuat komunitas sehat. lahir di Yogyakarta pada tahun 1992. Komunitas ini banyak melahirkan event-event besar. Ayo join bersama kami untuk membuat komunitas sehat. lahir di Yogyakarta pada tahun 1992. Komunitas ini banyak melahirkan event-event besar. Ayo join bersama kami untuk membuat komunitas sehat. lahir di Yogyakarta pada tahun 1992. Komunitas ini banyak melahirkan event-event besar. Ayo join bersama kami untuk membuat komunitas sehat. lahir di Yogyakarta pada tahun 1992. Komunitas ini banyak melahirkan event-event besar. Ayo join bersama kami untuk membuat komunitas sehat."),
+                        child: Text(desc),
                       ),
                     ),
                   ],
@@ -258,143 +283,172 @@ class _SearchState extends State<Search> {
         pageBuilder: (context, animation1, animation2) {});
   }
 
+  void listPage() {
+    listSearch.add(
+      Text(
+        'Comu Kategori',
+        style: TextStyle(
+          fontSize: 25,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+
+    listSearch.add(
+      SizedBox(
+        height: 10,
+      ),
+    );
+
+    listSearch.add(
+      Container(
+        height: 80,
+        child: ListView(
+          shrinkWrap: true,
+          scrollDirection: Axis.horizontal,
+          children: <Widget>[
+            categoryCard('Gaming', 'images/gaming.png'),
+            categoryCard('Masak', 'images/kitchen.png'),
+            categoryCard('Olahraga', 'images/sport.png'),
+            categoryCard('Belajar', 'images/study.png'),
+            categoryCard('Liburan', 'images/liburan.png'),
+            categoryCard('Kesehatan', 'images/health.png'),
+          ],
+        ),
+      ),
+    );
+
+    listSearch.add(
+      SizedBox(
+        height: 20,
+      ),
+    );
+
+    listSearch.add(
+      Text(
+        'Populer',
+        style: TextStyle(
+          fontSize: 25,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+
+    listKomunitas.forEach(
+      (data) {
+        listSearch.add(
+          Padding(
+            padding: const EdgeInsets.only(top: 10.0),
+            child: InkWell(
+              onTap: () {
+                _showDialog(
+                  data.deskripsi,
+                  data.imageUrl,
+                  data.namaKomunitas,
+                  data.uid,
+                );
+              },
+              child: Card(
+                elevation: 5,
+                child: Container(
+                  height: 120,
+                  child: Row(
+                    children: <Widget>[
+                      Container(
+                        height: 120,
+                        width: 100,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(5),
+                              topLeft: Radius.circular(5),
+                            ),
+                            image: DecorationImage(
+                              image: NetworkImage(data.imageUrl),
+                              fit: BoxFit.cover,
+                            )),
+                      ),
+                      Container(
+                        height: 100,
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                data.namaKomunitas,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 20,
+                                ),
+                              ),
+                              Container(
+                                  width: 260,
+                                  margin: EdgeInsets.fromLTRB(0, 2, 0, 2),
+                                  child: Row(
+                                    children: <Widget>[
+                                      CircleAvatar(
+                                        backgroundImage:
+                                            ExactAssetImage('images/dummy.jpg'),
+                                        radius: 12,
+                                        backgroundColor:
+                                            Colors.grey.withOpacity(0.15),
+                                      ),
+                                      SizedBox(
+                                        width: 2,
+                                      ),
+                                      CircleAvatar(
+                                        backgroundImage:
+                                            ExactAssetImage('images/dummy.jpg'),
+                                        radius: 12,
+                                        backgroundColor:
+                                            Colors.grey.withOpacity(0.15),
+                                      ),
+                                      SizedBox(
+                                        width: 2,
+                                      ),
+                                      CircleAvatar(
+                                        backgroundImage:
+                                            ExactAssetImage('images/dummy.jpg'),
+                                        radius: 12,
+                                        backgroundColor:
+                                            Colors.grey.withOpacity(0.15),
+                                      ),
+                                      SizedBox(
+                                        width: 4,
+                                      ),
+                                      Text(
+                                        '+18 Lainnya',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      )
+                                    ],
+                                  )),
+                              Container(
+                                width: 260,
+                                child: Text(data.deskripsi),
+                              )
+                            ],
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget searchPage() {
     return search.text.length == 0
         ? Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                'Comu Kategori',
-                style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Container(
-                height: 80,
-                child: ListView(
-                  shrinkWrap: true,
-                  scrollDirection: Axis.horizontal,
-                  children: <Widget>[
-                    categoryCard('Gaming', 'images/gaming.png'),
-                    categoryCard('Masak', 'images/kitchen.png'),
-                    categoryCard('Olahraga', 'images/sport.png'),
-                    categoryCard('Belajar', 'images/study.png'),
-                    categoryCard('Liburan', 'images/liburan.png'),
-                    categoryCard('Kesehatan', 'images/health.png'),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Text(
-                'Populer',
-                style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              InkWell(
-                onTap: _showDialog,
-                child: Card(
-                  elevation: 5,
-                  child: Container(
-                    height: 120,
-                    child: Row(
-                      children: <Widget>[
-                        Container(
-                          height: 120,
-                          width: 100,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.only(
-                                bottomLeft: Radius.circular(5),
-                                topLeft: Radius.circular(5),
-                              ),
-                              image: DecorationImage(
-                                image: ExactAssetImage('images/sepeda.jpg'),
-                                fit: BoxFit.cover,
-                              )),
-                        ),
-                        Container(
-                          height: 100,
-                          child: Padding(
-                            padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                  'Pencinta Sepeda \'GOWES\'',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                                Container(
-                                    width: 260,
-                                    margin: EdgeInsets.fromLTRB(0, 2, 0, 2),
-                                    child: Row(
-                                      children: <Widget>[
-                                        CircleAvatar(
-                                          backgroundImage: ExactAssetImage(
-                                              'images/dummy.jpg'),
-                                          radius: 12,
-                                          backgroundColor:
-                                              Colors.grey.withOpacity(0.15),
-                                        ),
-                                        SizedBox(
-                                          width: 2,
-                                        ),
-                                        CircleAvatar(
-                                          backgroundImage: ExactAssetImage(
-                                              'images/dummy.jpg'),
-                                          radius: 12,
-                                          backgroundColor:
-                                              Colors.grey.withOpacity(0.15),
-                                        ),
-                                        SizedBox(
-                                          width: 2,
-                                        ),
-                                        CircleAvatar(
-                                          backgroundImage: ExactAssetImage(
-                                              'images/dummy.jpg'),
-                                          radius: 12,
-                                          backgroundColor:
-                                              Colors.grey.withOpacity(0.15),
-                                        ),
-                                        SizedBox(
-                                          width: 4,
-                                        ),
-                                        Text(
-                                          '+18 Lainnya',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        )
-                                      ],
-                                    )),
-                                Container(
-                                  width: 260,
-                                  child: Text(
-                                      "Komunitas \'GOWES\' lahir di Yogyakarta pada tahun 1992. Komunitas ini banyak melahirkan event-event besar. Ayo join bersama kami untuk membuat komunitas sehat."),
-                                )
-                              ],
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            children: listSearch,
           )
         : Container();
   }

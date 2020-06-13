@@ -23,7 +23,6 @@ class _KomunitasFormState extends State<KomunitasForm> with Validation{
   TextEditingController nameController = TextEditingController();
   TextEditingController deskController = TextEditingController();
   String dropdownValue;
-  String imagePath;
   File imgPick;
   FirebaseAuth _auth = FirebaseAuth.instance;
   DateTime dateTime = DateTime.now();
@@ -111,7 +110,11 @@ class _KomunitasFormState extends State<KomunitasForm> with Validation{
                                     child: Image.asset('images/instant-camera.png'),
                                   ),
                                   SizedBox(height: 10),
-                                  Text('Tambah Gambar'),
+                                  Text("Tambah Gambar", style: TextStyle(
+                                    color: Colors.orange,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                  ),),
                                 ],)
                             ) : Container(
                                 child: Column(children: <Widget>[
@@ -190,7 +193,7 @@ class _KomunitasFormState extends State<KomunitasForm> with Validation{
                               decoration: InputDecoration(
                                 labelText: 'Deskripsi Komunitas',
                                 prefixIcon: Icon(
-                                  Icons.art_track,
+                                  Icons.edit,
                                   color: Colors.grey,
                                 ),
                                 labelStyle: TextStyle(color: Colors.grey),

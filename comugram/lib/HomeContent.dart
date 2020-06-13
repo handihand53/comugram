@@ -171,16 +171,18 @@ class _HomeContentState extends State<HomeContent> {
     return RefreshIndicator(
       key: _refreshIndicatorKey,
       onRefresh: _refresh,
-      child: NotificationListener( // ini untuk listen scroll, nantinya digunakan untuk infinity scroll
+      child: NotificationListener(
+        // ini untuk listen scroll, nantinya digunakan untuk infinity scroll
         child: ListView(
           controller: _scrollController,
-          children:
-              listOfData,
+          children: listOfData,
         ),
         onNotification: (t) {
           if (t is ScrollEndNotification) {
-            print(_scrollController.position.maxScrollExtent); // detect max scroll
-            print(_scrollController.position.pixels); //detect current heigt pixels
+            print(_scrollController
+                .position.maxScrollExtent); // detect max scroll
+            print(_scrollController
+                .position.pixels); //detect current heigt pixels
           }
         },
       ),
