@@ -1,8 +1,13 @@
 import 'package:comugram/HomeContent.dart';
+import 'package:comugram/ProfileContent.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'Login.dart';
+import 'ResetPassword.dart';
 import 'Search.dart';
+import 'model/User.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -24,13 +29,13 @@ class _HomeState extends State<Home> {
     Search(),
     HomeContent(),
     HomeContent(),
-    HomeContent(),
+    ProfileContent(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: _currentIndex == 4 ? null : AppBar(
         backgroundColor: Colors.orange,
         title: Image.asset(
           'images/comugram logo 4.png',

@@ -20,6 +20,7 @@ class _RegisterFormState extends State<RegisterForm> with Validation{
   User userModel;
   final formKey = GlobalKey<FormState>();
   TextEditingController userController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passController = TextEditingController();
 
@@ -36,9 +37,9 @@ class _RegisterFormState extends State<RegisterForm> with Validation{
         return null;
       }
   }
-  void doRegis(String email, String pass, String uname) async{
+  void doRegis(String nama, String email, String pass, String uname) async{
     RegisUnamePass(email, pass).then((FirebaseUser user){
-      userModel = User(uid: user.uid, username: uname,email: user.email);
+      userModel = User(uid: user.uid, namaLengkap: nama,username: uname,email: user.email);
       Fs.InsertDataUser(userModel);
       Navigator.pushReplacement(this.context, MaterialPageRoute(builder: (BuildContext context) => Home()));
     }).catchError((e) =>print(e.toString()));
@@ -82,6 +83,34 @@ class _RegisterFormState extends State<RegisterForm> with Validation{
                         Padding (
                           padding: EdgeInsets.only(top:15.0, bottom:10.0),
                           child: TextFormField(
+                            controller: nameController,
+                            style: TextStyle(color: Colors.grey,),
+                            keyboardType: TextInputType.text,
+                            decoration: InputDecoration(
+                              labelText: 'Nama Lengkap',
+                              prefixIcon: Icon(
+                                Icons.art_track,
+                                color: Colors.grey,
+                              ),
+                              labelStyle: TextStyle(color: Colors.grey),
+                              enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.grey,
+                                  )
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.orange),
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(0.0),
+                              ),
+                            ),
+                            validator: validateName,
+                          ),
+                        ),
+                        Padding (
+                          padding: EdgeInsets.only(top:15.0, bottom:10.0),
+                          child: TextFormField(
                             controller: userController,
                             style: TextStyle(color: Colors.grey,),
                             keyboardType: TextInputType.text,
@@ -107,7 +136,6 @@ class _RegisterFormState extends State<RegisterForm> with Validation{
                             validator: validateName,
                           ),
                         ),
-
                         Padding (
                           padding: EdgeInsets.only(top:10.0, bottom:10.0),
                           child: TextFormField(
@@ -181,7 +209,7 @@ class _RegisterFormState extends State<RegisterForm> with Validation{
                                     onPressed: () {
                                       if(formKey.currentState.validate()){
                                         formKey.currentState.save();
-                                        doRegis(emailController.text.toString(), passController.text.toString(), userController.text.toString());
+                                        doRegis(nameController.text.toString(),emailController.text.toString(), passController.text.toString(), userController.text.toString());
                                       }
                                     },
                                     padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
