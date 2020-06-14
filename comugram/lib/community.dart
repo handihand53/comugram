@@ -20,7 +20,7 @@ class _CommunityState extends State<Community> {
   TextEditingController searchController = new TextEditingController();
   FirestoreServices firestoreServices;
   FirebaseAuth _auth = FirebaseAuth.instance;
-  List<Komunitas> komunitas;
+  List<Komunitas> komunitas = List<Komunitas>();
 
   @override
   void initState() {
@@ -36,7 +36,7 @@ class _CommunityState extends State<Community> {
   void getKomunitas() async {
     FirebaseUser user = await _auth.currentUser();
     String owner = user.uid;
-    komunitas = await firestoreServices.getKomunitas(owner);
+    komunitas = await firestoreServices.getJoinedKomunitas(owner);
     print(komunitas.length);
     setState(() {});
   }
@@ -163,7 +163,6 @@ class _CommunityState extends State<Community> {
 
   @override
   Widget build(BuildContext context) {
-    if (komunitas == null) komunitas = List<Komunitas>();
     Card search = Card(
       child: ListTile(
         leading: Icon(Icons.search),
@@ -252,7 +251,11 @@ class _CommunityState extends State<Community> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           contentSearch,
-          Expanded(child: listComunnity),
+          komunitas.length == 0
+              ? Center(
+                  child: CircularProgressIndicator(),
+                )
+              : Expanded(child: listComunnity),
         ],
       ),
     );

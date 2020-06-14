@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:comugram/model/Komunitas.dart';
+import 'package:comugram/model/Post.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -73,7 +74,7 @@ class FirestoreServices {
     });
   }
 
-  Future<Map<String, dynamic>> selectKomunitas(String komId) async {
+  Future<Map<String, dynamic>> selectNameKomunitas(String komId) async {
     Map<String, dynamic> temp = Map<String, dynamic>();
     await Firestore.instance
         .collection("Komunitas")
@@ -85,7 +86,7 @@ class FirestoreServices {
     return temp;
   }
 
-  Future<List<Komunitas>> getKomunitas(String uid) async {
+  Future<List<Komunitas>> getJoinedKomunitas(String uid) async {
     List<Komunitas> komunitas = List<Komunitas>();
 
     QuerySnapshot query = await Firestore.instance
@@ -96,12 +97,31 @@ class FirestoreServices {
     List<DocumentSnapshot> snapshot = query.documents;
 
     for (DocumentSnapshot element in snapshot) {
-      await selectKomunitas(element['id_komunitas']).then((value) {
+      await selectNameKomunitas(element['id_komunitas']).then((value) {
         Komunitas kom = Komunitas.fromMap(value);
         komunitas.add(kom);
       });
     }
 
     return komunitas;
+  }
+
+  //uploadpost
+  Future<String> uploadImgPost(File file) async {
+    String fileName = basename(file.path);
+    StorageReference ref =
+        FirebaseStorage.instance.ref().child('imgPost/$fileName');
+    StorageUploadTask task = ref.putFile(file);
+    StorageTaskSnapshot snapshot = await task.onComplete;
+    return await snapshot.ref.getDownloadURL();
+  }
+
+  Future<void> insertPost(Post post) async {
+    Firestore.instance
+        .collection("post")
+        .document(post.id_komunitas)
+        .collection("items")
+        .document(post.id_post)
+        .setData(post.toMap());
   }
 }

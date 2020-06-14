@@ -1,3 +1,4 @@
+import 'package:comugram/AddPostPage.dart';
 import 'package:comugram/HomeContent.dart';
 import 'package:comugram/community.dart';
 import 'package:comugram/ProfileContent.dart';
@@ -46,7 +47,7 @@ class _HomeState extends State<Home> {
   final List<Widget> _children = [
     HomeContent(),
     Search(),
-    HomeContent(),
+    AddPostPage(),
     Community(),
     ProfileContent(),
   ];
