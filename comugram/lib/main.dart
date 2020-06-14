@@ -1,3 +1,4 @@
+import 'package:comugram/Category.dart';
 import 'package:comugram/Home.dart';
 import 'package:comugram/IntroductionPage.dart';
 import 'package:comugram/RegisterForm.dart';

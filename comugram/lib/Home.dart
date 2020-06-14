@@ -57,6 +57,7 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: _showAppbar
           ? AppBar(
+              automaticallyImplyLeading: false,
               backgroundColor: Colors.orange,
               title: Image.asset(
                 'images/comugram logo 4.png',

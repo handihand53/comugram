@@ -163,7 +163,7 @@ class _HomeContentState extends State<HomeContent> {
             padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             child: Row(
               children: <Widget>[
-                profile.urlProfile == ''
+                profile.urlProfile == null
                     ? CircleAvatar(
                         backgroundImage: ExactAssetImage('images/user.png'),
                         radius: 18,

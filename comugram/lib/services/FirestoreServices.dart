@@ -43,6 +43,7 @@ class FirestoreServices {
     StorageTaskSnapshot snapshot = await task.onComplete;
     return await snapshot.ref.getDownloadURL();
   }
+
   Future<void> InsertKomunitas(Komunitas kom, uid,Joined join){
     Firestore.instance.collection('Komunitas').document(kom.uid).setData(kom.toMap());
     Firestore.instance.collection('joined').document(uid).setData(join.toMap());
@@ -77,11 +78,26 @@ class FirestoreServices {
         .delete();
   }
 
-  Future<List<Komunitas>> cariKomunitas(String name) async {
+  Future<List<Komunitas>> getByCategory(String cat) async {
     List<Komunitas> komunitas = List<Komunitas>();
     await Firestore.instance
         .collection("Komunitas")
         .orderBy("namaKomunitas")
+        .getDocuments()
+        .then((snapshot) {
+      snapshot.documents.forEach((data) {
+        Map<String, dynamic> temp = data.data;
+        komunitas.add(Komunitas.fromMap(temp));
+      });
+    });
+    return komunitas;
+  }
+
+  Future<List<Komunitas>> cariKomunitas(String name) async {
+    List<Komunitas> komunitas = List<Komunitas>();
+    await Firestore.instance
+        .collection("Komunitas")
+        .orderBy("searchKomunitas")
         .startAt([name.toUpperCase()])
         .endAt([name.toUpperCase() + '\uf8ff'])
         .getDocuments()
