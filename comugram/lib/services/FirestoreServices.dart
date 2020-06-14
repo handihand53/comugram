@@ -1,31 +1,44 @@
 import 'dart:io';
 import 'package:comugram/model/Joined.dart';
 import 'package:comugram/model/Komunitas.dart';
+import 'package:comugram/model/Post.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../model/Komunitas.dart';
+import '../model/Komunitas.dart';
+import '../model/Komunitas.dart';
+import '../model/Komunitas.dart';
+import '../model/Komunitas.dart';
+import '../model/Komunitas.dart';
+import '../model/Komunitas.dart';
+import '../model/Komunitas.dart';
 import '../model/User.dart';
 
 class FirestoreServices {
   //USER
-  Future<void> InsertDataUser(User u){
+  Future<void> InsertDataUser(User u) {
     Firestore.instance.collection('User').document(u.uid).setData(u.toMap());
   }
+
   //USER->KHUSUS PROFILE
-  Future<void> EditDataUser(User u){
+  Future<void> EditDataUser(User u) {
     Firestore.instance.collection('User').document(u.uid).updateData(u.toMap());
   }
-  Future<String> uploadImgProfile(File file, String uid) async{
-    StorageReference ref = FirebaseStorage.instance.ref().child('imgProfile/$uid');
+
+  Future<String> uploadImgProfile(File file, String uid) async {
+    StorageReference ref =
+        FirebaseStorage.instance.ref().child('imgProfile/$uid');
     StorageUploadTask task = ref.putFile(file);
     StorageTaskSnapshot snapshot = await task.onComplete;
     return await snapshot.ref.getDownloadURL();
   }
 
   //KOMUNITAS
-  Future<String> uploadImgKomunitas(File file) async{
+  Future<String> uploadImgKomunitas(File file) async {
     String fileName = basename(file.path);
-    StorageReference ref = FirebaseStorage.instance.ref().child('imgKomunitas/$fileName');
+    StorageReference ref =
+        FirebaseStorage.instance.ref().child('imgKomunitas/$fileName');
     StorageUploadTask task = ref.putFile(file);
     StorageTaskSnapshot snapshot = await task.onComplete;
     return await snapshot.ref.getDownloadURL();
@@ -34,14 +47,104 @@ class FirestoreServices {
     Firestore.instance.collection('Komunitas').document(kom.uid).setData(kom.toMap());
     Firestore.instance.collection('joined').document(uid).setData(join.toMap());
   }
-  Future<void> GabungKomunitas(Komunitas kom, String uid){
-    Firestore.instance.collection('Komunitas').document(kom.uid).updateData({
-      'member' : FieldValue.arrayUnion([uid])
+
+  Future<void> gabungKomunitas(String id, String uid) {
+    Firestore.instance
+        .collection('joined')
+        .document(id.toString() + uid.toString())
+        .setData({
+      'id_user': uid,
+      'id_komunitas': id,
     });
   }
-  Future<void> KeluarKomunitas(Komunitas kom, String uid){
-    Firestore.instance.collection('Komunitas').document(kom.uid).updateData({
-      'member' : FieldValue.arrayRemove([uid])
+
+  Future<Map<String, dynamic>> selectNameKomunitas(String komId) async {
+    Map<String, dynamic> temp = Map<String, dynamic>();
+    await Firestore.instance
+        .collection("Komunitas")
+        .document(komId)
+        .get()
+        .then((value) {
+      temp = value.data;
     });
+    return temp;
+  }
+
+  Future<void> keluarKomunitas(String id, String uid) {
+    Firestore.instance
+        .collection('joined')
+        .document(id.toString() + uid.toString())
+        .delete();
+  }
+
+  Future<List<Komunitas>> cariKomunitas(String name) async {
+    List<Komunitas> komunitas = List<Komunitas>();
+    await Firestore.instance
+        .collection("Komunitas")
+        .orderBy("namaKomunitas")
+        .startAt([name.toUpperCase()])
+        .endAt([name.toUpperCase() + '\uf8ff'])
+        .getDocuments()
+        .then((snapshot) {
+          snapshot.documents.forEach((data) {
+            Map<String, dynamic> temp = data.data;
+            komunitas.add(Komunitas.fromMap(temp));
+          });
+        });
+    return komunitas;
+  }
+
+  Future<List<Komunitas>> getJoinedKomunitas(String uid) async {
+    List<Komunitas> komunitas = List<Komunitas>();
+
+    QuerySnapshot query = await Firestore.instance
+        .collection("joined")
+        .where("id_user", isEqualTo: uid)
+        .getDocuments();
+
+    List<DocumentSnapshot> snapshot = query.documents;
+
+    for (DocumentSnapshot element in snapshot) {
+      await selectNameKomunitas(element['id_komunitas']).then((value) {
+        Komunitas kom = Komunitas.fromMap(value);
+        komunitas.add(kom);
+      });
+    }
+    return komunitas;
+  }
+
+  //uploadpost
+  Future<String> uploadImgPost(File file) async {
+    String fileName = basename(file.path);
+    StorageReference ref =
+        FirebaseStorage.instance.ref().child('imgPost/$fileName');
+    StorageUploadTask task = ref.putFile(file);
+    StorageTaskSnapshot snapshot = await task.onComplete;
+    return await snapshot.ref.getDownloadURL();
+  }
+
+  Future<void> insertPost(Post post) async {
+    Firestore.instance
+        .collection("post")
+        .document(post.id_komunitas)
+        .collection("items")
+        .document(post.id_post)
+        .setData(post.toMap());
+  }
+
+  Future<List<Post>> getPostKomunitas(String uid) async {
+    List<Post> post = List<Post>();
+    await Firestore.instance
+        .collection("post")
+        .document(uid)
+        .collection("items")
+        .getDocuments()
+        .then((snapshot) {
+      snapshot.documents.forEach((data) {
+        Map<String, dynamic> temp = data.data;
+        post.add(Post.fromMap(temp));
+      });
+    });
+    return post;
   }
 }

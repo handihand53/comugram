@@ -7,7 +7,14 @@ class Komunitas {
   String owner;
   String tanggalBuat;
 
-  Komunitas({this.uid, this.kategori, this.imageUrl,this.namaKomunitas, this.deskripsi, this.owner, this.tanggalBuat});
+  Komunitas(
+      {this.uid,
+      this.kategori,
+      this.imageUrl,
+      this.namaKomunitas,
+      this.deskripsi,
+      this.owner,
+      this.tanggalBuat});
 
   Komunitas.fromMap(Map<String, dynamic> komunitasMaps) {
     this.uid = komunitasMaps['id'];
@@ -22,11 +29,12 @@ class Komunitas {
     return {
       'id': uid,
       'kategori': kategori,
-      'imageUrl' : imageUrl,
+      'imageUrl': imageUrl,
       'namaKomunitas': namaKomunitas,
       'deskripsi': deskripsi,
       'owner': owner,
       'tanggalBuat': tanggalBuat,
+      'searchKomunitas': namaKomunitas.toUpperCase(),
     };
   }
 }
