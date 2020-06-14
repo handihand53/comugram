@@ -65,14 +65,13 @@ class FirestoreServices {
   }
 
   Future<void> gabungKomunitas(String id, String uid) {
-    Firestore.instance.collection('joined').document().setData({
+    Firestore.instance
+        .collection('joined')
+        .document(id.toString() + uid.toString())
+        .setData({
       'id_user': uid,
       'id_komunitas': id,
     });
-  }
-
-  Future<void> KeluarKomunitas(String id, String uid) {
-    Firestore.instance.collection('joined').where('komunitas_id', isEqualTo: uid).where('user_id', isEqualTo: id);
   }
 
   Future<Map<String, dynamic>> selectNameKomunitas(String komId) async {
@@ -85,6 +84,30 @@ class FirestoreServices {
       temp = value.data;
     });
     return temp;
+  }
+
+  Future<void> keluarKomunitas(String id, String uid) {
+    Firestore.instance
+        .collection('joined')
+        .document(id.toString() + uid.toString())
+        .delete();
+  }
+
+  Future<List<Komunitas>> cariKomunitas(String name) async {
+    List<Komunitas> komunitas = List<Komunitas>();
+    await Firestore.instance
+        .collection("Komunitas")
+        .orderBy("namaKomunitas")
+        .startAt([name.toUpperCase()])
+        .endAt([name.toUpperCase() + '\uf8ff'])
+        .getDocuments()
+        .then((snapshot) {
+          snapshot.documents.forEach((data) {
+            Map<String, dynamic> temp = data.data;
+            komunitas.add(Komunitas.fromMap(temp));
+          });
+        });
+    return komunitas;
   }
 
   Future<List<Komunitas>> getJoinedKomunitas(String uid) async {
@@ -103,7 +126,6 @@ class FirestoreServices {
         komunitas.add(kom);
       });
     }
-
     return komunitas;
   }
 
