@@ -10,8 +10,8 @@ class Validation {
   }
 
   String validateName(String value) {
-    if (value.isEmpty || value.length <= 3) { //JIKA VALUE KOSONG
-      return 'Biarkan orang lain tahu nama Anda'; //MAKA PESAN DITAMPILKAN
+    if (value.isEmpty || value.length <= 3 || value.length >= 20) { //JIKA VALUE KOSONG
+      return 'Biarkan orang lain mengenali Anda secara singkat'; //MAKA PESAN DITAMPILKAN
     }
     return null;
   }
@@ -24,7 +24,7 @@ class Validation {
   }
 
   String validateNameKomunitas(String value) {
-    if (value.isEmpty || value.length <= 3) { //JIKA VALUE KOSONG
+    if (value.isEmpty || value.length <= 3 || value.length >= 20) { //JIKA VALUE KOSONG
       return 'Biarkan orang lain tahu nama Komunitas Anda'; //MAKA PESAN DITAMPILKAN
     }
     return null;

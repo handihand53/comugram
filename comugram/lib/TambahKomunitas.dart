@@ -1,12 +1,13 @@
 import 'dart:io';
+import 'package:comugram/model/Joined.dart';
 import 'package:comugram/services/FirestoreServices.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'package:uuid/uuid.dart';
 import 'Validator.dart';
 import 'model/Komunitas.dart';
@@ -22,6 +23,7 @@ class _KomunitasFormState extends State<KomunitasForm> with Validation{
   FirestoreServices Fs = new FirestoreServices();
   TextEditingController nameController = TextEditingController();
   TextEditingController deskController = TextEditingController();
+  bool _progressLoad=true;
   String dropdownValue;
   File imgPick;
   FirebaseAuth _auth = FirebaseAuth.instance;
@@ -62,6 +64,7 @@ class _KomunitasFormState extends State<KomunitasForm> with Validation{
 
   @override
   Widget build(BuildContext context) {
+    ProgressDialog pD = ProgressDialog(context,type: ProgressDialogType.Normal,isDismissible: false,);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.orange,
@@ -146,7 +149,7 @@ class _KomunitasFormState extends State<KomunitasForm> with Validation{
                                 });
                               },
                               items: <String>[
-                                'Gaming', 'Makan', 'Masak', 'Sport', 'Study',
+                                'Gaming', 'Makan', 'Masak', 'Olahraga', 'Belajar','Liburan','Kesehatan'
                               ].map<DropdownMenuItem<String>>((String value) {
                                 return DropdownMenuItem<String>(
                                   value: value,
@@ -212,7 +215,6 @@ class _KomunitasFormState extends State<KomunitasForm> with Validation{
                               validator: validateDesk,
                             ),
                           ),
-
                           // tombol button
                           Padding (
                             padding: EdgeInsets.only(top: 15.0,bottom:15.0),
@@ -227,13 +229,16 @@ class _KomunitasFormState extends State<KomunitasForm> with Validation{
                                       onPressed: () async{
                                         if(formKey.currentState.validate()){
                                           formKey.currentState.save();
+                                          pD.show();
                                           if(imgPick != null && dropdownValue !=null){
                                             String url = await Fs.uploadImgKomunitas(imgPick);
                                             String tgl = DateFormat('dd MMMM yyyy').format(dateTime);
                                             FirebaseUser user = await _auth.currentUser();
                                             String owner = user.uid;
                                             Komunitas kom = Komunitas(uid: uuid.v4(), kategori: dropdownValue, imageUrl: url, namaKomunitas: nameController.text, deskripsi: deskController.text, owner: owner, tanggalBuat: tgl);
-                                            Fs.InsertKomunitas(kom);
+                                            Joined join = Joined(uid: kom.owner, kom_id: kom.uid);
+                                            Fs.InsertKomunitas(kom,  uuid.v4(), join);
+                                            pD.hide();
                                             Navigator.pop(context);
                                           }else{
                                             showAlertDialog_Fail(context, 'Belum ada data lengkap untuk ditampilkan ke sesama Komunitas');
@@ -289,6 +294,18 @@ showAlertDialog_Fail(BuildContext context, String msg) {
     context: context,
     builder: (BuildContext context) {
       return alert;
+    },
+  );
+}
+
+showLoadDialog(BuildContext context) {
+  AlertDialog load = AlertDialog(
+    content: CircularProgressIndicator(),
+  );
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return load;
     },
   );
 }

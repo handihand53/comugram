@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:comugram/model/Joined.dart';
 import 'package:comugram/model/Komunitas.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart';
@@ -20,18 +21,6 @@ class FirestoreServices {
     StorageTaskSnapshot snapshot = await task.onComplete;
     return await snapshot.ref.getDownloadURL();
   }
-//  Future<int> countPost(bth parameter)async{
-//   QuerySnapshot post  = await Firestore.instance.collection('Post').where('user_id', isEqualTo: 'user_id').getDocuments();
-//   return post.documents.length;
-//  }
-//  Future<int> countOwnedKomunitas(User u)async{
-//   QuerySnapshot own  = await Firestore.instance.collection('Komunitas').where('Owned', isEqualTo: u.uid).getDocuments();
-//   return own.documents.length;
-//  }
-//  Future<int> countJoinedKomunitas(User u)async{
-//   QuerySnapshot join  = await Firestore.instance.collection('Komunitas').where('Member', arrayContains: u.uid).getDocuments();
-//   return join.documents.length;
-//  }
 
   //KOMUNITAS
   Future<String> uploadImgKomunitas(File file) async{
@@ -41,8 +30,9 @@ class FirestoreServices {
     StorageTaskSnapshot snapshot = await task.onComplete;
     return await snapshot.ref.getDownloadURL();
   }
-  Future<void> InsertKomunitas(Komunitas kom){
+  Future<void> InsertKomunitas(Komunitas kom, uid,Joined join){
     Firestore.instance.collection('Komunitas').document(kom.uid).setData(kom.toMap());
+    Firestore.instance.collection('joined').document(uid).setData(join.toMap());
   }
   Future<void> GabungKomunitas(Komunitas kom, String uid){
     Firestore.instance.collection('Komunitas').document(kom.uid).updateData({

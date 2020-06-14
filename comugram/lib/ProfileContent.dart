@@ -3,6 +3,7 @@ import 'package:comugram/EditProfile.dart';
 import 'package:comugram/HomeContent.dart';
 import 'package:comugram/Login.dart';
 import 'package:comugram/ResetPassword.dart';
+import 'package:comugram/services/FirestoreServices.dart';
 import 'package:flutter/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -17,6 +18,9 @@ class ProfileContent extends StatefulWidget {
 
 class _ProfileContentState extends State<ProfileContent> with SingleTickerProviderStateMixin{
   User profile;
+  int cPost,cOwn,cJoined;
+  FirestoreServices Fs = FirestoreServices();
+  bool _progressController = true;
 
   void SignOut() async{
     GoogleSignIn g = GoogleSignIn();
@@ -27,14 +31,27 @@ class _ProfileContentState extends State<ProfileContent> with SingleTickerProvid
   void initialDisplayProfile()async{
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     await Firestore.instance.collection('User').document(user.uid).get().then((snapshot){
+      profile = User.fromMap(snapshot.data);
       setState(() {
-        profile = User.fromMap(snapshot.data);
+        profile;
+        _progressController = false;
       });
     });
-  }
-
-  void initialDisplayCount(){
-
+    await Firestore.instance.collection('Post').where('id_user', isEqualTo: profile.uid).getDocuments().then((value){
+      setState(() {
+        cPost = value.documents.length;
+      });
+    });
+    await Firestore.instance.collection('joined').where('id_user', isEqualTo: profile.uid).getDocuments().then((value){
+      setState(() {
+        cJoined = value.documents.length;
+      });
+    });
+    await Firestore.instance.collection('Komunitas').where('owner', isEqualTo: profile.uid).getDocuments().then((value){
+      setState(() {
+        cOwn = value.documents.length;
+      });
+    });
   }
 
   @override
@@ -45,7 +62,7 @@ class _ProfileContentState extends State<ProfileContent> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return _progressController? Scaffold(body: Center(child: CircularProgressIndicator()),) : Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.orange,
         title: Text("${profile.username}", style: TextStyle(
@@ -73,9 +90,9 @@ class _ProfileContentState extends State<ProfileContent> with SingleTickerProvid
                   value: 'pickReset',
                   child: Row(
                     children: <Widget>[
-                      Icon(Icons.lock_open),
+                      Icon(Icons.lock_open,color: Colors.orange,),
                       SizedBox(width: 5,),
-                      Text('Reset Password',style: TextStyle(color: Colors.orange),),
+                      Text('Reset Password'),
                     ],
                   )
                 ),
@@ -83,9 +100,9 @@ class _ProfileContentState extends State<ProfileContent> with SingleTickerProvid
                   value: 'pickSignOut',
                   child: Row(
                     children: <Widget>[
-                      Icon(Icons.power_settings_new),
+                      Icon(Icons.power_settings_new,color: Colors.orange,),
                       SizedBox(width: 5,),
-                      Text('SignOut',style: TextStyle(color: Colors.orange),),
+                      Text('SignOut'),
                     ],
                   ),
                 )
@@ -104,7 +121,7 @@ class _ProfileContentState extends State<ProfileContent> with SingleTickerProvid
                   [
                     Container(
                       color: Colors.white,
-                      height: 250,
+                      height: 275,
                       child: Padding(
                         padding: EdgeInsets.only(left: 20, right: 10, top: 15),
                         child: Column(
@@ -116,7 +133,7 @@ class _ProfileContentState extends State<ProfileContent> with SingleTickerProvid
                                   width: 100,
                                   child: ClipRRect(
                                       borderRadius: BorderRadius.circular(8.0),
-                                      child: profile.urlProfile != '' ? Image.network(profile.urlProfile) : Image.asset('images/sensor.png'),
+                                      child: profile.urlProfile != null ? Image.network(profile.urlProfile) : Image.asset('images/sensor.png'),
                                   ),
                                 ),
                                 SizedBox(width: 15,),
@@ -124,7 +141,6 @@ class _ProfileContentState extends State<ProfileContent> with SingleTickerProvid
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: <Widget>[
                                     Text("${profile.namaLengkap}", style: TextStyle(
-                                      color: Colors.orange,
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
                                     ),),
@@ -134,7 +150,6 @@ class _ProfileContentState extends State<ProfileContent> with SingleTickerProvid
                                         Icon(Icons.alternate_email,size: 17,color: Colors.orange,),
                                         SizedBox(width: 5,),
                                         Text('${profile.email}',style: TextStyle(
-                                          color: Colors.orange,
                                           fontSize: 15,
                                           fontWeight: FontWeight.bold,
                                         ),),
@@ -150,8 +165,7 @@ class _ProfileContentState extends State<ProfileContent> with SingleTickerProvid
                               children: <Widget>[
                                 Column(
                                   children: <Widget>[
-                                    Text("1000", style: TextStyle(
-                                      color: Colors.orange,
+                                    cPost == null? CircularProgressIndicator() : Text("$cPost", style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
                                     ),),
@@ -163,8 +177,7 @@ class _ProfileContentState extends State<ProfileContent> with SingleTickerProvid
                                 ),
                                 Column(
                                   children: <Widget>[
-                                    Text("10", style: TextStyle(
-                                      color: Colors.orange,
+                                    cOwn == null? CircularProgressIndicator() : Text("$cOwn", style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
                                     ),),
@@ -176,8 +189,7 @@ class _ProfileContentState extends State<ProfileContent> with SingleTickerProvid
                                 ),
                                 Column(
                                   children: <Widget>[
-                                    Text("20", style: TextStyle(
-                                      color: Colors.orange,
+                                    cJoined == null? CircularProgressIndicator() : Text("$cJoined", style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
                                     ),),
@@ -190,7 +202,7 @@ class _ProfileContentState extends State<ProfileContent> with SingleTickerProvid
                               ],
                             ),
                             Padding (
-                              padding: EdgeInsets.only(top: 15.0,bottom:15.0,right: 10),
+                              padding: EdgeInsets.only(top: 25.0,bottom:15.0,right: 10),
                               child: Row(
                                 children: <Widget> [
                                   Expanded(

@@ -17,6 +17,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         primaryColor: Colors.orange,
+        accentColor: Colors.orange,
       ),
       initialRoute: '/',
       routes: <String, WidgetBuilder>{
