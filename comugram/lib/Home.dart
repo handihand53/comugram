@@ -1,9 +1,15 @@
+import 'package:comugram/AddPostPage.dart';
 import 'package:comugram/HomeContent.dart';
 import 'package:comugram/community.dart';
+import 'package:comugram/ProfileContent.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'Login.dart';
+import 'ResetPassword.dart';
 import 'Search.dart';
+import 'model/User.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -22,7 +28,7 @@ class _HomeState extends State<Home> {
       // index didapat dari setiap user melakukan click pada bottom navigation
       // halaman yg ditempelkan pada tampilan bisa di liat di list<widget> _children
 
-      if (_currentIndex != 1) {
+      if (_currentIndex != 1 && _currentIndex != 4) {
         _showAppbar = true;
       } else {
         _showAppbar = false;
@@ -41,9 +47,9 @@ class _HomeState extends State<Home> {
   final List<Widget> _children = [
     HomeContent(),
     Search(),
-    HomeContent(),
+    AddPostPage(),
     Community(),
-    HomeContent(),
+    ProfileContent(),
   ];
 
   @override
