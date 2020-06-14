@@ -83,11 +83,12 @@ class _CommunityState extends State<Community> {
                       ),
                       RaisedButton(
                         onPressed: () {
+                          print("uid: " + kom.uid);
                           Navigator.push(
                               this.context,
                               MaterialPageRoute(
                                   builder: (BuildContext context) =>
-                                      DetailCommunity()));
+                                      DetailCommunity(komunitas: kom)));
                         },
                         child: Text(
                           "Lihat",

@@ -124,4 +124,20 @@ class FirestoreServices {
         .document(post.id_post)
         .setData(post.toMap());
   }
+
+  Future<List<Post>> getPostKomunitas(String uid) async {
+    List<Post> post = List<Post>();
+    await Firestore.instance
+        .collection("post")
+        .document(uid)
+        .collection("items")
+        .getDocuments()
+        .then((snapshot) {
+      snapshot.documents.forEach((data) {
+        Map<String, dynamic> temp = data.data;
+        post.add(Post.fromMap(temp));
+      });
+    });
+    return post;
+  }
 }

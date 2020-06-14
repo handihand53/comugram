@@ -15,6 +15,15 @@ class Post {
       this.imageUrl,
       this.caption,
       this.tanggalBuat});
+  Post.fromMap(Map<String, dynamic> postMaps) {
+    this.id_post = postMaps["id_post"];
+    this.id_user = postMaps['id_user'];
+    this.id_komunitas = postMaps['id_komunitas'];
+    this.location = postMaps['location'];
+    this.imageUrl = postMaps["imageUrl"];
+    this.caption = postMaps['caption'];
+    this.tanggalBuat = postMaps['tanggalBuat'];
+  }
   Map<String, dynamic> toMap() {
     return {
       "id_user": this.id_user,
