@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:comugram/services/FirestoreServices.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'model/Joined.dart';
 import 'model/Komunitas.dart';
 
 class Search extends StatefulWidget {
@@ -13,6 +16,7 @@ class _SearchState extends State<Search> {
   FocusNode _focusNodeSearch;
   TextEditingController search = TextEditingController();
   List<Komunitas> listKomunitas = new List();
+  List<Joined> listJoined = List();
   List<Widget> listSearch = new List();
 
   Future<void> getKomunitasDataPopuler() async {
@@ -31,6 +35,27 @@ class _SearchState extends State<Search> {
     });
   }
 
+  Future<void> getJoinedKomunitas() async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+
+    Firestore.instance.collection('joined').snapshots().listen(
+      (s) {
+        s.documents.forEach(
+          (d) {
+            if (d['id_user'] == user.uid) {
+              listJoined.add(
+                Joined(
+                  uid: d['id_user'],
+                  idKom: d['id_komunitas'],
+                ),
+              );
+            }
+          },
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -39,6 +64,9 @@ class _SearchState extends State<Search> {
 
   @override
   void initState() {
+    getJoinedKomunitas().then((s) {
+      setState(() {});
+    });
     super.initState();
     getKomunitasDataPopuler().then((s) {
       setState(() {});
@@ -141,6 +169,11 @@ class _SearchState extends State<Search> {
   }
 
   void _showDialog(String desc, String img, String name, String id) {
+    bool status = true;
+    listJoined.forEach((idJoined) {
+      status = idJoined.idKom == id;
+    });
+
     showGeneralDialog(
         barrierColor: Colors.black.withOpacity(0.5),
         transitionBuilder: (context, a1, a2, widget) {
@@ -260,17 +293,41 @@ class _SearchState extends State<Search> {
                       Navigator.pop(context);
                     },
                   ),
-                  RaisedButton(
-                    color: Colors.orange,
-                    child: Text(
-                      'Ikuti Komunitas',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    onPressed: () {},
-                  ),
+                  status
+                      ? RaisedButton(
+                          color: Colors.orange,
+                          child: Text(
+                            'Ikuti Komunitas',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          onPressed: () async {
+                            FirebaseUser user =
+                                await FirebaseAuth.instance.currentUser();
+                            FirestoreServices firestoreServices =
+                                new FirestoreServices();
+                            firestoreServices.gabungKomunitas(id, user.uid);
+                          },
+                        )
+                      : RaisedButton(
+                          color: Colors.orange,
+                          child: Text(
+                            'Keluar Komunitas',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          onPressed: () async {
+                            FirebaseUser user =
+                                await FirebaseAuth.instance.currentUser();
+                            FirestoreServices firestoreServices =
+                                new FirestoreServices();
+                            firestoreServices.gabungKomunitas(id, user.uid);
+                          },
+                        ),
                 ],
               ),
             ),
