@@ -1,90 +1,119 @@
+import 'package:comugram/model/Komunitas.dart';
+import 'package:comugram/model/Post.dart';
+import 'package:comugram/services/FirestoreServices.dart';
 import 'package:flutter/material.dart';
 
 class DetailCommunity extends StatefulWidget {
+  Komunitas komunitas;
+  DetailCommunity({this.komunitas});
+
   @override
   State<StatefulWidget> createState() => _DetailCommunityState();
 }
 
 class _DetailCommunityState extends State<DetailCommunity> {
+  FirestoreServices firestoreServices;
+  List<Post> post = List<Post>();
+  @override
+  void initState() {
+    super.initState();
+
+    firestoreServices = FirestoreServices();
+    getPost();
+    setState(() {});
+  }
+
+  void getPost() async {
+    post = await firestoreServices.getPostKomunitas(widget.komunitas.uid);
+    setState(() {});
+    print(post.length);
+  }
+
   @override
   Widget build(BuildContext context) {
     var deviceSize = MediaQuery.of(context).size;
 
-    Padding header = Padding(
-      padding: const EdgeInsets.fromLTRB(16.0, 16.0, 8.0, 16.0),
-      child: Row(
-        children: <Widget>[
-          Container(
-            height: 40.0,
-            width: 40.0,
-            decoration: new BoxDecoration(
-              shape: BoxShape.circle,
-              image: new DecorationImage(
-                fit: BoxFit.fill,
-                image: new NetworkImage(
-                    "https://pbs.twimg.com/profile_images/916384996092448768/PF1TSFOE_400x400.jpg"),
-              ),
-            ),
-          ),
-          new SizedBox(
-            width: 10.0,
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                'Albert Einstein',
-                style: TextStyle(
-                  fontSize: 16,
+    Padding header(Post post) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16.0, 16.0, 8.0, 16.0),
+        child: Row(
+          children: <Widget>[
+            Container(
+              height: 40.0,
+              width: 40.0,
+              decoration: new BoxDecoration(
+                shape: BoxShape.circle,
+                image: new DecorationImage(
+                  fit: BoxFit.fill,
+                  image: new NetworkImage(
+                      "https://pbs.twimg.com/profile_images/916384996092448768/PF1TSFOE_400x400.jpg"),
                 ),
               ),
-              InkWell(
-                onTap: () => print('tes'),
-                child: Text(
-                  'Yogyakarta',
+            ),
+            new SizedBox(
+              width: 10.0,
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  'Albert Einstein',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 16,
                   ),
                 ),
-              )
-            ],
-          ),
-        ],
-      ),
-    );
-
-    Padding footer = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Wrap(
-              children: <Widget>[
-                Text("wayan ganteng",
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Text("hati sedang baik-baik saja"),
-                ),
+                InkWell(
+                  onTap: () => print('tes'),
+                  child: Text(
+                    post.location,
+                    style: TextStyle(
+                      fontSize: 12,
+                    ),
+                  ),
+                )
               ],
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 4.0),
-              child: GestureDetector(
-                child: Text(
-                  'View all comments',
-                  style: TextStyle(color: Colors.grey),
-                ),
-                onTap: () {},
+          ],
+        ),
+      );
+    }
+
+    Padding footer(Post post) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Wrap(
+                children: <Widget>[
+                  Text("wayan ganteng",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(post.caption),
+                  ),
+                ],
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 4.0),
-              child: Text("1 Day Ago", style: TextStyle(color: Colors.grey)),
-            )
-          ]),
-    );
+              Padding(
+                padding: const EdgeInsets.only(top: 4.0),
+                child: GestureDetector(
+                  child: Text(
+                    'View all comments',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                  onTap: () {},
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 4.0),
+                child: Text(post.tanggalBuat,
+                    style: TextStyle(color: Colors.grey)),
+              )
+            ]),
+      );
+    }
+
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(
@@ -96,22 +125,22 @@ class _DetailCommunityState extends State<DetailCommunity> {
         ),
       ),
       body: ListView.builder(
-        itemCount: 4,
+        itemCount: post.length,
         itemBuilder: (BuildContext context, int index) {
           return Column(
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              header,
+              header(post[index]),
               Flexible(
                 fit: FlexFit.loose,
                 child: new Image.network(
-                  "https://images.pexels.com/photos/672657/pexels-photo-672657.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
+                  post[index].imageUrl,
                   fit: BoxFit.cover,
                 ),
               ),
-              footer,
+              footer(post[index]),
             ],
           );
         },
