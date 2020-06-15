@@ -3,9 +3,11 @@ import 'package:comugram/services/FirestoreServices.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 
 import 'model/Joined.dart';
 import 'model/Komunitas.dart';
+import 'model/User.dart';
 
 class Category extends StatefulWidget {
   String cat;
@@ -22,16 +24,34 @@ class _CategoryState extends State<Category> {
   _CategoryState(this.cat);
 
   FocusNode _focusNodeSearch;
+  List<Joined> listJoinedUser = List();
   TextEditingController search = TextEditingController();
   List<Komunitas> listKomunitas = new List();
   List<Joined> listJoined = List();
   List<Widget> listSearch = new List();
+  List<User> usr = new List();
+  bool finish = false;
+  Future<User> userProfile(String id) async {
+    User profile;
+    await Firestore.instance
+        .collection('User')
+        .document(id)
+        .get()
+        .then((snapshot) {
+      setState(() {
+        usr.add(User.fromMap(snapshot.data));
+      });
+    });
+  }
 
   Future<void> getKomunitasDataPopuler() async {
-    print(cat);
-    await Firestore.instance.collection('Komunitas').where("kategori", isEqualTo: cat).getDocuments().then((data){
+    listKomunitas = [];
+    await Firestore.instance
+        .collection('Komunitas')
+        .where("kategori", isEqualTo: cat)
+        .getDocuments()
+        .then((data) {
       data.documents.forEach((d) {
-        print(d.toString());
         listKomunitas.add(Komunitas(
           uid: d['id'],
           deskripsi: d['deskripsi'],
@@ -42,7 +62,11 @@ class _CategoryState extends State<Category> {
           tanggalBuat: d['tanggalBuat'],
         ));
       });
+      setState(() {
+        finish = true;
+      });
     });
+
   }
 
   Future<void> getJoinedKomunitas() async {
@@ -95,6 +119,114 @@ class _CategoryState extends State<Category> {
 
   Color getPrefixIconColorSearch() {
     return _focusNodeSearch.hasFocus ? Colors.black : Colors.grey;
+  }
+
+  Future<List<Joined>> getJoinedUserInKomunitas(String idKom) async {
+    print(idKom);
+    listJoinedUser = [];
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+
+    await Firestore.instance
+        .collection("joined")
+        .where('id_komunitas', isEqualTo: idKom)
+        .getDocuments()
+        .then((snapshot) {
+      for (var data in snapshot.documents) {
+        listJoinedUser.add(
+          Joined(
+            uid: data['id_user'],
+            kom_id: data['id_komunitas'],
+          ),
+        );
+        print(data['id_user']);
+      }
+    });
+
+    setState(() {});
+    return listJoinedUser;
+  }
+
+  void _showDialogPengikut(String id, ProgressDialog pD) async {
+    usr = [];
+    await getJoinedUserInKomunitas(id);
+    for (var x in listJoinedUser) {
+      await userProfile(x.uid);
+    }
+    await pD.hide();
+
+    showGeneralDialog(
+        barrierColor: Colors.black.withOpacity(0.5),
+        transitionBuilder: (context, a1, a2, widget) {
+          return Transform.scale(
+            scale: a1.value,
+            child: Opacity(
+              opacity: a1.value,
+              child: AlertDialog(
+                contentPadding: EdgeInsets.fromLTRB(15, 0, 15, 15),
+                titlePadding: EdgeInsets.fromLTRB(15.0, 15.0, 15.0, 10.0),
+                elevation: 3,
+                shape: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.transparent),
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+                title: Text('List pengikut (${usr.length})'),
+                content: ListTile(
+                  contentPadding: EdgeInsets.all(0),
+                  title: Container(
+                    height: 500.0,
+                    width: MediaQuery.of(context).size.width * 0.85,
+                    child: ListView.separated(
+                      padding: EdgeInsets.all(0),
+                      separatorBuilder: (context, index) {
+                        return Divider(
+                          color: Colors.grey,
+                        );
+                      },
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          onTap: () {},
+                          contentPadding: EdgeInsets.all(0),
+                          dense: true,
+                          leading: CircleAvatar(
+                            backgroundImage: usr[index].urlProfile != null
+                                ? NetworkImage(usr[index].urlProfile)
+                                : ExactAssetImage('images/user.png'),
+                            radius: 20,
+                            backgroundColor: Colors.grey.withOpacity(0.15),
+                          ),
+                          title: Text(
+                            usr[index].namaLengkap,
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        );
+                      },
+                      itemCount: usr.length,
+                    ),
+                  ),
+                ),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text(
+                      'Tutup',
+                      style: TextStyle(
+                        color: Colors.orange,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+        transitionDuration: Duration(milliseconds: 200),
+        barrierDismissible: true,
+        barrierLabel: '',
+        context: context,
+        pageBuilder: (context, animation1, animation2) {});
   }
 
   void _showDialog(String desc, String img, String name, String id) {
@@ -162,41 +294,27 @@ class _CategoryState extends State<Category> {
                     SizedBox(
                       height: 7.0,
                     ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        CircleAvatar(
-                          backgroundImage: ExactAssetImage('images/dummy.jpg'),
-                          radius: 12,
-                          backgroundColor: Colors.grey.withOpacity(0.15),
-                        ),
-                        SizedBox(
-                          width: 2,
-                        ),
-                        CircleAvatar(
-                          backgroundImage: ExactAssetImage('images/dummy.jpg'),
-                          radius: 12,
-                          backgroundColor: Colors.grey.withOpacity(0.15),
-                        ),
-                        SizedBox(
-                          width: 2,
-                        ),
-                        CircleAvatar(
-                          backgroundImage: ExactAssetImage('images/dummy.jpg'),
-                          radius: 12,
-                          backgroundColor: Colors.grey.withOpacity(0.15),
-                        ),
-                        SizedBox(
-                          width: 4,
-                        ),
-                        Text(
-                          '+18 Lainnya',
+                    Padding(
+                      padding:
+                      const EdgeInsets.symmetric(vertical: 6.0),
+                      child: InkWell(
+                        onTap: () async {
+                          ProgressDialog pD = ProgressDialog(
+                            context,
+                            type: ProgressDialogType.Normal,
+                            isDismissible: false,
+                          );
+                          await pD.show();
+                          _showDialogPengikut(id, pD);
+                        },
+                        child: Text(
+                          'Lihat Pengikut',
                           style: TextStyle(
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.orange,
                           ),
-                        )
-                      ],
+                        ),
+                      ),
                     ),
                     SizedBox(
                       height: 7.0,
@@ -296,6 +414,7 @@ class _CategoryState extends State<Category> {
   }
 
   void listPage() {
+    listSearch = [];
     listKomunitas.forEach(
       (data) {
         listSearch.add(
@@ -343,49 +462,28 @@ class _CategoryState extends State<Category> {
                                   fontSize: 20,
                                 ),
                               ),
-                              Container(
-                                  width: 260,
-                                  margin: EdgeInsets.fromLTRB(0, 2, 0, 2),
-                                  child: Row(
-                                    children: <Widget>[
-                                      CircleAvatar(
-                                        backgroundImage:
-                                            ExactAssetImage('images/dummy.jpg'),
-                                        radius: 12,
-                                        backgroundColor:
-                                            Colors.grey.withOpacity(0.15),
-                                      ),
-                                      SizedBox(
-                                        width: 2,
-                                      ),
-                                      CircleAvatar(
-                                        backgroundImage:
-                                            ExactAssetImage('images/dummy.jpg'),
-                                        radius: 12,
-                                        backgroundColor:
-                                            Colors.grey.withOpacity(0.15),
-                                      ),
-                                      SizedBox(
-                                        width: 2,
-                                      ),
-                                      CircleAvatar(
-                                        backgroundImage:
-                                            ExactAssetImage('images/dummy.jpg'),
-                                        radius: 12,
-                                        backgroundColor:
-                                            Colors.grey.withOpacity(0.15),
-                                      ),
-                                      SizedBox(
-                                        width: 4,
-                                      ),
-                                      Text(
-                                        '+18 Lainnya',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      )
-                                    ],
-                                  )),
+                              Padding(
+                                padding:
+                                const EdgeInsets.symmetric(vertical: 6.0),
+                                child: InkWell(
+                                  onTap: () async {
+                                    ProgressDialog pD = ProgressDialog(
+                                      context,
+                                      type: ProgressDialogType.Normal,
+                                      isDismissible: false,
+                                    );
+                                    await pD.show();
+                                    _showDialogPengikut(data.uid, pD);
+                                  },
+                                  child: Text(
+                                    'Lihat Pengikut',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.orange,
+                                    ),
+                                  ),
+                                ),
+                              ),
                               Container(
                                 width: 260,
                                 child: Text(data.deskripsi),
@@ -446,17 +544,17 @@ class _CategoryState extends State<Category> {
   Widget contentPage() {
     setState(() {});
     return Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              listKomunitas.length == 0
-                  ? Center(
-                      child: CircularProgressIndicator(),
-                    )
-                  : Column(
-                      children: listSearch,
-                    ),
-            ],
-          );
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        finish ?
+            listKomunitas.length == 0 ?
+            Text('Belum ada komunitas', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),) : Column(
+          children: listSearch,
+        ) :Center(
+          child: CircularProgressIndicator(),
+        )
+      ],
+    );
   }
 }

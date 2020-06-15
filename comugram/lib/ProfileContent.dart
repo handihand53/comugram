@@ -135,7 +135,7 @@ class _ProfileContentState extends State<ProfileContent> with SingleTickerProvid
                                     width: 100,
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(8.0),
-                                      child: profile.urlProfile != null ? Image.network(profile.urlProfile) : Image.asset('images/sensor.png'),
+                                      child: profile.urlProfile != null ? Image.network(profile.urlProfile) : Image.asset('images/user.png'),
                                     ),
                                   ),
                                   SizedBox(width: 15,),

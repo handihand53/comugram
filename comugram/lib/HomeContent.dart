@@ -23,6 +23,7 @@ class _HomeContentState extends State<HomeContent> {
   List<Post> postAllUser2 = List<Post>();
   FirestoreServices firestoreServices;
   User profile;
+  bool finish = false;
 
   Future<User> userProfile(String id) async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
@@ -147,6 +148,7 @@ class _HomeContentState extends State<HomeContent> {
 
     getList().then((d) {
       allData = d;
+      finish = true;
     });
 
     return postAllUser;
@@ -237,7 +239,6 @@ class _HomeContentState extends State<HomeContent> {
         );
       }
     }
-
     return data;
   }
 
@@ -250,16 +251,35 @@ class _HomeContentState extends State<HomeContent> {
         // ini untuk listen scroll, nantinya digunakan untuk infinity scroll
         child: ListView(
           controller: _scrollController,
-          children: allData.length == 0
-              ? <Widget>[
+          children: finish
+              ? allData.length == 0
+                  ? <Widget>[
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          SizedBox(
+                            height: 300,
+                          ),
+                          Center(
+                            child: Text(
+                              'Belum ada postingan',
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ]
+                  : allData
+              : <Widget>[
                   Padding(
                     padding: const EdgeInsets.only(top: 20.0),
                     child: Center(
                       child: CircularProgressIndicator(),
                     ),
-                  )
-                ]
-              : allData,
+                  ),
+                ],
         ),
         onNotification: (t) {
           if (t is ScrollEndNotification) {
