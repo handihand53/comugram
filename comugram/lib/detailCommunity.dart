@@ -3,6 +3,8 @@ import 'package:comugram/model/Post.dart';
 import 'package:comugram/services/FirestoreServices.dart';
 import 'package:flutter/material.dart';
 
+import 'model/User.dart';
+
 class DetailCommunity extends StatefulWidget {
   Komunitas komunitas;
   DetailCommunity({this.komunitas});
@@ -13,7 +15,7 @@ class DetailCommunity extends StatefulWidget {
 
 class _DetailCommunityState extends State<DetailCommunity> {
   FirestoreServices firestoreServices;
-  List<Post> post = List<Post>();
+  List post = List();
   @override
   void initState() {
     super.initState();
@@ -24,7 +26,7 @@ class _DetailCommunityState extends State<DetailCommunity> {
   }
 
   void getPost() async {
-    post = await firestoreServices.getPostKomunitas(widget.komunitas.uid);
+    post = await firestoreServices.getPostKomunitas2(widget.komunitas.uid);
     setState(() {});
     print(post.length);
   }
@@ -33,7 +35,7 @@ class _DetailCommunityState extends State<DetailCommunity> {
   Widget build(BuildContext context) {
     var deviceSize = MediaQuery.of(context).size;
 
-    Padding header(Post post) {
+    Padding header(Map<String, dynamic> post) {
       return Padding(
         padding: const EdgeInsets.fromLTRB(16.0, 16.0, 8.0, 16.0),
         child: Row(
@@ -45,8 +47,9 @@ class _DetailCommunityState extends State<DetailCommunity> {
                 shape: BoxShape.circle,
                 image: new DecorationImage(
                   fit: BoxFit.fill,
-                  image: new NetworkImage(
-                      "https://pbs.twimg.com/profile_images/916384996092448768/PF1TSFOE_400x400.jpg"),
+                  image: post['user'].urlProfile != null
+                      ? NetworkImage(post['user'].urlProfile)
+                      : ExactAssetImage('images/user.png'),
                 ),
               ),
             ),
@@ -58,7 +61,7 @@ class _DetailCommunityState extends State<DetailCommunity> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  'Albert Einstein',
+                  post['user'].namaLengkap,
                   style: TextStyle(
                     fontSize: 16,
                   ),
@@ -66,7 +69,7 @@ class _DetailCommunityState extends State<DetailCommunity> {
                 InkWell(
                   onTap: () => print('tes'),
                   child: Text(
-                    post.location,
+                    post['post'].location,
                     style: TextStyle(
                       fontSize: 12,
                     ),
@@ -79,7 +82,7 @@ class _DetailCommunityState extends State<DetailCommunity> {
       );
     }
 
-    Padding footer(Post post) {
+    Padding footer(Map<String, dynamic> post) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: Column(
@@ -87,11 +90,11 @@ class _DetailCommunityState extends State<DetailCommunity> {
             children: <Widget>[
               Wrap(
                 children: <Widget>[
-                  Text("wayan ganteng",
+                  Text(post['user'].namaLengkap,
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(post.caption),
+                    child: Text(post['post'].caption),
                   ),
                 ],
               ),
@@ -107,7 +110,7 @@ class _DetailCommunityState extends State<DetailCommunity> {
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 4.0),
-                child: Text(post.tanggalBuat,
+                child: Text(post['post'].tanggalBuat,
                     style: TextStyle(color: Colors.grey)),
               )
             ]),
@@ -136,7 +139,7 @@ class _DetailCommunityState extends State<DetailCommunity> {
               Flexible(
                 fit: FlexFit.loose,
                 child: new Image.network(
-                  post[index].imageUrl,
+                  post[index]['post'].imageUrl,
                   fit: BoxFit.cover,
                 ),
               ),

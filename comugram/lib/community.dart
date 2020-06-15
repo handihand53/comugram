@@ -97,7 +97,7 @@ class _CommunityState extends State<Community> {
                         color: Colors.orange,
                       ),
                       Text(
-                        kom.owner,
+                        kom.namaOwner,
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -205,35 +205,35 @@ class _CommunityState extends State<Community> {
         itemBuilder: (BuildContext context, int index) {
           return Center(
             child: Card(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  ListTile(
-                    leading: Image.network(
-                      komunitas[index].imageUrl,
-                      width: 50,
-                    ),
-                    title: GestureDetector(
-                      onTap: () {
-                        showAlert(context, komunitas[index]);
-                      },
-                      child: Text(
+              child: GestureDetector(
+                onTap: () {
+                  showAlert(context, komunitas[index]);
+                },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    ListTile(
+                      leading: Image.network(
+                        komunitas[index].imageUrl,
+                        width: 50,
+                      ),
+                      title: Text(
                         komunitas[index].namaKomunitas,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                    ),
-                    subtitle: Text(
-                      '1000 orang mengikuti komunitas ini',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
+                      subtitle: Text(
+                        '1000 orang mengikuti komunitas ini',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           );

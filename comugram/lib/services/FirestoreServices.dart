@@ -44,8 +44,11 @@ class FirestoreServices {
     return await snapshot.ref.getDownloadURL();
   }
 
-  Future<void> InsertKomunitas(Komunitas kom, uid,Joined join){
-    Firestore.instance.collection('Komunitas').document(kom.uid).setData(kom.toMap());
+  Future<void> InsertKomunitas(Komunitas kom, uid, Joined join) {
+    Firestore.instance
+        .collection('Komunitas')
+        .document(kom.uid)
+        .setData(kom.toMap());
     Firestore.instance.collection('joined').document(uid).setData(join.toMap());
   }
 
@@ -121,10 +124,18 @@ class FirestoreServices {
     List<DocumentSnapshot> snapshot = query.documents;
 
     for (DocumentSnapshot element in snapshot) {
-      await selectNameKomunitas(element['id_komunitas']).then((value) {
-        Komunitas kom = Komunitas.fromMap(value);
-        komunitas.add(kom);
-      });
+      Map<String, dynamic> tempKomunitas =
+          await selectNameKomunitas(element['id_komunitas']);
+      Map<String, dynamic> tempUser = await selectUser(tempKomunitas['owner']);
+      tempKomunitas['namaOwner'] = tempUser['namaLengkap'];
+      Komunitas kom = Komunitas.fromMap(tempKomunitas);
+      komunitas.add(kom);
+      // print("data komunitas: ${komunitas.length}");
+      // print("id_user ${tempUser['namaLengkap']}");
+      // await selectNameKomunitas(element['id_komunitas']).then((value) {
+      //   Komunitas kom = Komunitas.fromMap(value);
+      //   komunitas.add(kom);
+      // });
     }
     return komunitas;
   }
@@ -148,6 +159,18 @@ class FirestoreServices {
         .setData(post.toMap());
   }
 
+  Future<Map<String, dynamic>> selectUser(String userId) async {
+    Map<String, dynamic> temp = Map<String, dynamic>();
+    await Firestore.instance
+        .collection("User")
+        .document(userId)
+        .get()
+        .then((value) {
+      temp = value.data;
+    });
+    return temp;
+  }
+
   Future<List<Post>> getPostKomunitas(String uid) async {
     List<Post> post = List<Post>();
     await Firestore.instance
@@ -162,5 +185,38 @@ class FirestoreServices {
       });
     });
     return post;
+  }
+
+  Future<List> getPostKomunitas2(String uid) async {
+    List postResult = List();
+    QuerySnapshot query = await Firestore.instance
+        .collection("post")
+        .document(uid)
+        .collection("items")
+        .getDocuments();
+
+    List<DocumentSnapshot> snapshot = query.documents;
+
+    for (DocumentSnapshot element in snapshot) {
+      Map<String, dynamic> tempUser = await selectUser(element['id_user']);
+      Map<String, dynamic> post = element.data;
+      Map<String, dynamic> temp = Map<String, dynamic>();
+      temp['user'] = User.fromMap(tempUser);
+      temp['post'] = Post.fromMap(post);
+      postResult.add(temp);
+    }
+
+    // await Firestore.instance
+    //     .collection("post")
+    //     .document(uid)
+    //     .collection("items")
+    //     .getDocuments()
+    //     .then((snapshot) {
+    //   snapshot.documents.forEach((data) {
+    //     Map<String, dynamic> temp = data.data;
+    //     post.add(Post.fromMap(temp));
+    //   });
+    // });
+    return postResult;
   }
 }
