@@ -1,20 +1,26 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:comugram/Category.dart';
 import 'package:comugram/services/FirestoreServices.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:oktoast/oktoast.dart';
 
 import 'model/Joined.dart';
 import 'model/Komunitas.dart';
 
-class Search extends StatefulWidget {
+class Category extends StatefulWidget {
+  String cat;
+
+  Category(this.cat);
+
   @override
-  _SearchState createState() => _SearchState();
+  _CategoryState createState() => _CategoryState(cat);
 }
 
-class _SearchState extends State<Search> {
+class _CategoryState extends State<Category> {
+  String cat;
+
+  _CategoryState(this.cat);
+
   FocusNode _focusNodeSearch;
   TextEditingController search = TextEditingController();
   List<Komunitas> listKomunitas = new List();
@@ -22,8 +28,10 @@ class _SearchState extends State<Search> {
   List<Widget> listSearch = new List();
 
   Future<void> getKomunitasDataPopuler() async {
-    await Firestore.instance.collection('Komunitas').snapshots().listen((s) {
-      s.documents.forEach((d) {
+    print(cat);
+    await Firestore.instance.collection('Komunitas').where("kategori", isEqualTo: cat).getDocuments().then((data){
+      data.documents.forEach((d) {
+        print(d.toString());
         listKomunitas.add(Komunitas(
           uid: d['id'],
           deskripsi: d['deskripsi'],
@@ -87,133 +95,6 @@ class _SearchState extends State<Search> {
 
   Color getPrefixIconColorSearch() {
     return _focusNodeSearch.hasFocus ? Colors.black : Colors.grey;
-  }
-
-  Route _createRouteCategory(String cat) {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => Category(cat),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        var begin = Offset(0.0, 1.0);
-        var end = Offset.zero;
-        var curve = Curves.ease;
-        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-        return SlideTransition(
-          position: animation.drive(tween),
-          child: child,
-        );
-      },
-    );
-  }
-
-  Widget categoryCard(String text, String image, String cat) {
-    return Card(
-      elevation: 2,
-      child: InkWell(
-        onTap: () {
-          Navigator.of(context).push(_createRouteCategory(cat));
-        },
-        child: Container(
-          width: 80,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              CircleAvatar(
-                backgroundImage: ExactAssetImage(image),
-                radius: 18,
-                backgroundColor: Colors.grey.withOpacity(0.15),
-              ),
-              SizedBox(
-                height: 2,
-              ),
-              Text(
-                text,
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    listSearch = [];
-    listPage();
-    return OKToast(
-      child: MaterialApp(
-        home: Scaffold(
-          body: SingleChildScrollView(
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  TextFormField(
-                    focusNode: _focusNodeSearch,
-                    controller: search,
-                    onEditingComplete: () {},
-                    textInputAction: TextInputAction.search,
-                    onFieldSubmitted: (val) {
-                      listKomunitas = [];
-                      searchComunity(val);
-                      setState(() {});
-                    },
-                    onChanged: (val) {
-                      if (val == "") {
-                        listKomunitas = [];
-                        searchComunity(val);
-                        setState(() {});
-                      }
-                    },
-                    autofocus: false,
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                    decoration: InputDecoration(
-                      isDense: true,
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color: getPrefixIconColorSearch(),
-                      ),
-                      contentPadding: EdgeInsets.all(15.0),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.transparent),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.transparent),
-                      ),
-                      focusColor: Colors.orange,
-                      filled: true,
-                      hintStyle: TextStyle(color: Colors.grey[500]),
-                      hintText: "Cari",
-                      fillColor: Color.fromRGBO(245, 245, 245, 1),
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 15.0,
-                      vertical: 15.0,
-                    ),
-                    child: searchPage(),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void searchComunity(String s) async {
-    FirestoreServices firestoreServices = FirestoreServices();
-    listKomunitas = await firestoreServices.cariKomunitas(s);
-    setState(() {});
   }
 
   void _showDialog(String desc, String img, String name, String id) {
@@ -415,7 +296,6 @@ class _SearchState extends State<Search> {
   }
 
   void listPage() {
-    listSearch = [];
     listKomunitas.forEach(
       (data) {
         listSearch.add(
@@ -525,58 +405,47 @@ class _SearchState extends State<Search> {
     );
   }
 
-  Widget searchPage() {
+  @override
+  Widget build(BuildContext context) {
+    listPage();
+    return OKToast(
+      child: MaterialApp(
+        home: Scaffold(
+          appBar: AppBar(
+            automaticallyImplyLeading: true,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () => Navigator.pop(context, false),
+            ),
+            title: Text(cat),
+            backgroundColor: Colors.orange,
+          ),
+          body: SingleChildScrollView(
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 15.0,
+                      vertical: 15.0,
+                    ),
+                    child: contentPage(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget contentPage() {
     setState(() {});
-    return search.text.length == 0
-        ? Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-                Text(
-                  'Comu Kategori',
-                  style: TextStyle(
-                    fontSize: 25,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  height: 80,
-                  child: ListView(
-                    shrinkWrap: true,
-                    scrollDirection: Axis.horizontal,
-                    children: <Widget>[
-                      categoryCard('Gaming', 'images/gaming.png', 'Gaming'),
-                      categoryCard('Masak', 'images/kitchen.png', 'Masak'),
-                      categoryCard('Olahraga', 'images/sport.png', 'Olahraga'),
-                      categoryCard('Belajar', 'images/study.png', 'Belajar'),
-                      categoryCard('Liburan', 'images/liburan.png', 'Liburan'),
-                      categoryCard(
-                          'Kesehatan', 'images/health.png', 'Kesehatan'),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  'Populer',
-                  style: TextStyle(
-                    fontSize: 25,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                listKomunitas.length == 0
-                    ? Center(
-                        child: CircularProgressIndicator(),
-                      )
-                    : Column(
-                        children: listSearch,
-                      ),
-              ])
-        : Column(
+    return Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[

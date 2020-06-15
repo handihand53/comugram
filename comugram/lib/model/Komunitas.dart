@@ -34,6 +34,7 @@ class Komunitas {
       'deskripsi': deskripsi,
       'owner': owner,
       'tanggalBuat': tanggalBuat,
+      'searchKomunitas': namaKomunitas.toUpperCase(),
     };
   }
 }

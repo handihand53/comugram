@@ -41,7 +41,7 @@ class _RegisterFormState extends State<RegisterForm> with Validation{
     RegisUnamePass(email, pass).then((FirebaseUser user){
       userModel = User(uid: user.uid, namaLengkap: nama,username: uname,email: user.email);
       Fs.InsertDataUser(userModel);
-      Navigator.pushReplacement(this.context, MaterialPageRoute(builder: (BuildContext context) => Home()));
+      Navigator.popAndPushNamed(this.context, '/home');
     }).catchError((e) =>print(e.toString()));
   }
 
@@ -237,7 +237,7 @@ class _RegisterFormState extends State<RegisterForm> with Validation{
                 TextSpan(text: 'Sudah memiliki akun? ',style: TextStyle(color: Colors.black)),
                 TextSpan(text: 'Login disini', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
                   recognizer: TapGestureRecognizer()..onTap = () {
-                    Navigator.pop(context);
+                    Navigator.popAndPushNamed(context, '/login');
                   }, ),
               ])
               ),
