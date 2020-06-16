@@ -177,6 +177,8 @@ class FirestoreServices {
         .collection("post")
         .document(uid)
         .collection("items")
+        .orderBy("id_post")
+        .limit(3)
         .getDocuments()
         .then((snapshot) {
       snapshot.documents.forEach((data) {
@@ -184,6 +186,29 @@ class FirestoreServices {
         post.add(Post.fromMap(temp));
       });
     });
+    return post;
+  }
+
+  Future<List<Post>> getPostKomunitasByLimit(
+      String komId, String idPost) async {
+    List<Post> post = List<Post>();
+    await Firestore.instance
+        .collection("post")
+        .document(komId)
+        .collection("items")
+        .orderBy("id_post")
+        .startAfter([
+          {'id_post': idPost}
+        ])
+        .limit(2)
+        .getDocuments()
+        .then((snapshot) {
+          snapshot.documents.forEach((data) {
+            Map<String, dynamic> temp = data.data;
+            post.add(Post.fromMap(temp));
+          });
+        });
+    print(post.length);
     return post;
   }
 
