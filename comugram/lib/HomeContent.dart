@@ -34,7 +34,7 @@ class _HomeContentState extends State<HomeContent> {
   bool getMoreItems = false;
   bool moreItemsAvailable = true;
   bool statusLoad = false;
-
+  int jumlahPost = 0;
   Future<User> userProfile(String id) async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     await Firestore.instance
@@ -175,9 +175,12 @@ class _HomeContentState extends State<HomeContent> {
       Map<String, dynamic> temp = f.data;
       postAllUser2.add(Post.fromMap(temp));
       countAddData++;
-      if (postAllUser2.length >= limit.documents.length) {
+      jumlahPost++;
+      if (jumlahPost >= limit.documents.length) {
+        jumlahPost =0;
         idxKom++;
         startAgain = true;
+        print('pindah index 2');
       }
     });
 
@@ -215,10 +218,16 @@ class _HomeContentState extends State<HomeContent> {
     querySnapshot.documents.forEach((f) {
       Map<String, dynamic> temp = f.data;
       postAllUser2.add(Post.fromMap(temp));
+      print(Post.fromMap(temp).caption);
       countAddData++;
-      if (postAllUser2.length >= limit.documents.length) {
+      jumlahPost++;
+      if (jumlahPost >= limit.documents.length) {
+        print('jumlahPost ${jumlahPost}');
+        print('limit.documents.length ${limit.documents.length}');
         idxKom++;
+        jumlahPost=0;
         startAgain = true;
+        print('pindah index 3');
       }
     });
 
@@ -251,18 +260,16 @@ class _HomeContentState extends State<HomeContent> {
 
   Future<List<List<Post>>> addData2(List<Komunitas> kom) async {
     statusLoad = true;
-    print('proses');
     countAddData = 0;
     while (countAddData < 1 &&
-        idxKom + 1 < kom.length &&
+        idxKom + 1 <= kom.length &&
         moreItemsAvailable != false) {
+      print('MASUK ANJENG');
       print(countAddData);
       await getFirstData2(kom);
     }
 
-    print('ke 1 - ${postAllUser.length}');
 //    postAllUser.add(postAllUser2);
-    print('ke 2 - ${postAllUser.length}');
 
     getList().then((d) {
       allData = [];
@@ -299,9 +306,12 @@ class _HomeContentState extends State<HomeContent> {
       Map<String, dynamic> temp = f.data;
       postAllUser2.add(Post.fromMap(temp));
       count++;
-      if (postAllUser2.length > limit.documents.length - 1) {
+      jumlahPost++;
+      if (jumlahPost > limit.documents.length - 1) {
+        jumlahPost=0;
         idxKom++;
         startAgain = true;
+        print('pindah index 1');
       }
     });
 
@@ -315,17 +325,16 @@ class _HomeContentState extends State<HomeContent> {
 
   Future<List<List<Post>>> addMoreData(List<Komunitas> kom) async {
     statusLoad = true;
-    print('proses');
     count = 0;
     while (
-        count < 1 && idxKom + 1 < kom.length && moreItemsAvailable != false) {
+        count < 1 && idxKom + 1 <= kom.length && moreItemsAvailable != false) {
+      print('asd');
       await getDataAfter(kom);
       count++;
     }
 
     getList().then((d) {
       allData = [];
-
       allData = d;
       finish = true;
     });
@@ -423,6 +432,13 @@ class _HomeContentState extends State<HomeContent> {
 
   @override
   Widget build(BuildContext context) {
+//    print(postAllUser.length);
+//    postAllUser.forEach((s){
+//      print(s.length);
+//      s.forEach((d){
+//        print(d.caption);
+//      });
+//    });
     return RefreshIndicator(
       key: _refreshIndicatorKey,
       onRefresh: _refresh,
@@ -465,11 +481,15 @@ class _HomeContentState extends State<HomeContent> {
             if (_scrollController.position.maxScrollExtent ==
                 _scrollController.position.pixels && statusLoad == false) {
               if (startAgain) {
+                print('if (index beda)');
                 addData2(kom);
                 startAgain = false;
+//                postAllUser2 = [];
               } else {
                 addMoreData(kom);
+                print('else (index sama)');
               }
+              print('idxKom ${idxKom}');
             }
           }
         },
