@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:comugram/CommentPage.dart';
 import 'package:comugram/model/Komunitas.dart';
 import 'package:comugram/model/User.dart';
 import 'package:comugram/services/FirestoreServices.dart';
@@ -35,6 +36,7 @@ class _HomeContentState extends State<HomeContent> {
   bool moreItemsAvailable = true;
   bool statusLoad = false;
   int jumlahPost = 0;
+
   Future<User> userProfile(String id) async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     await Firestore.instance
@@ -48,7 +50,7 @@ class _HomeContentState extends State<HomeContent> {
     });
   }
 
-  List<InlineSpan> listOfText(String s) {
+  List<InlineSpan> listOfText(String s, String idPost) {
     List<TextSpan> textSpan = new List();
 
     textSpan.add(
@@ -87,19 +89,13 @@ class _HomeContentState extends State<HomeContent> {
             height: 1.5,
           ),
           recognizer: TapGestureRecognizer()
-            ..onTap = () => print('Ini komentar'),
+            ..onTap = () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) => CommentPage(idPost))),
         ),
       );
 
-      textSpan.add(
-        TextSpan(
-          text: '20 Januari 2020',
-          style: TextStyle(
-            color: Colors.grey,
-            height: 1.5,
-          ),
-        ),
-      );
       return textSpan;
     }
 
@@ -119,6 +115,11 @@ class _HomeContentState extends State<HomeContent> {
           color: Colors.grey,
           height: 1.5,
         ),
+        recognizer: TapGestureRecognizer()
+          ..onTap = () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (BuildContext context) => CommentPage(idPost))),
       ),
     );
 
@@ -177,7 +178,7 @@ class _HomeContentState extends State<HomeContent> {
       countAddData++;
       jumlahPost++;
       if (jumlahPost >= limit.documents.length) {
-        jumlahPost =0;
+        jumlahPost = 0;
         idxKom++;
         startAgain = true;
         print('pindah index 2');
@@ -225,7 +226,7 @@ class _HomeContentState extends State<HomeContent> {
         print('jumlahPost ${jumlahPost}');
         print('limit.documents.length ${limit.documents.length}');
         idxKom++;
-        jumlahPost=0;
+        jumlahPost = 0;
         startAgain = true;
         print('pindah index 3');
       }
@@ -308,7 +309,7 @@ class _HomeContentState extends State<HomeContent> {
       count++;
       jumlahPost++;
       if (jumlahPost > limit.documents.length - 1) {
-        jumlahPost=0;
+        jumlahPost = 0;
         idxKom++;
         startAgain = true;
         print('pindah index 1');
@@ -346,7 +347,9 @@ class _HomeContentState extends State<HomeContent> {
     List<Widget> data = new List();
     for (var f in postAllUser) {
       for (var x in f) {
-        await userProfile(x.id_user);
+        await userProfile(
+          x.id_user,
+        );
         data.add(
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -406,7 +409,7 @@ class _HomeContentState extends State<HomeContent> {
                   fontSize: 12.0,
                   color: Colors.black,
                 ),
-                children: listOfText(x.caption),
+                children: listOfText(x.caption, x.id_post),
               ),
             ),
           ),
@@ -479,7 +482,8 @@ class _HomeContentState extends State<HomeContent> {
         onNotification: (t) {
           if (t is ScrollEndNotification) {
             if (_scrollController.position.maxScrollExtent ==
-                _scrollController.position.pixels && statusLoad == false) {
+                    _scrollController.position.pixels &&
+                statusLoad == false) {
               if (startAgain) {
                 print('if (index beda)');
                 addData2(kom);
