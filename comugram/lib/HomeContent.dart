@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:comugram/CommentPage.dart';
 import 'package:comugram/model/Komunitas.dart';
 import 'package:comugram/model/User.dart';
 import 'package:comugram/services/FirestoreServices.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'model/Post.dart';
 
@@ -24,6 +26,16 @@ class _HomeContentState extends State<HomeContent> {
   FirestoreServices firestoreServices;
   User profile;
   bool finish = false;
+  DocumentSnapshot _lastDocument;
+  int idxKom = 0;
+  int count = 0;
+  int countAddData = 0;
+  List<Komunitas> kom = List();
+  bool startAgain = false;
+  bool getMoreItems = false;
+  bool moreItemsAvailable = true;
+  bool statusLoad = false;
+  int jumlahPost = 0;
 
   Future<User> userProfile(String id) async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
@@ -38,7 +50,7 @@ class _HomeContentState extends State<HomeContent> {
     });
   }
 
-  List<InlineSpan> listOfText(String s) {
+  List<InlineSpan> listOfText(String s, String idPost) {
     List<TextSpan> textSpan = new List();
 
     textSpan.add(
@@ -77,19 +89,13 @@ class _HomeContentState extends State<HomeContent> {
             height: 1.5,
           ),
           recognizer: TapGestureRecognizer()
-            ..onTap = () => print('Ini komentar'),
+            ..onTap = () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) => CommentPage(idPost))),
         ),
       );
 
-      textSpan.add(
-        TextSpan(
-          text: '20 Januari 2020',
-          style: TextStyle(
-            color: Colors.grey,
-            height: 1.5,
-          ),
-        ),
-      );
       return textSpan;
     }
 
@@ -109,6 +115,11 @@ class _HomeContentState extends State<HomeContent> {
           color: Colors.grey,
           height: 1.5,
         ),
+        recognizer: TapGestureRecognizer()
+          ..onTap = () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (BuildContext context) => CommentPage(idPost))),
       ),
     );
 
@@ -132,7 +143,6 @@ class _HomeContentState extends State<HomeContent> {
     FirebaseUser user = await _auth.currentUser();
     String uid = user.uid;
 
-    List<Komunitas> kom = List();
     kom = [];
     kom = await firestoreServices.getJoinedKomunitas(uid);
     addData(kom).then((x) {
@@ -140,13 +150,192 @@ class _HomeContentState extends State<HomeContent> {
     });
   }
 
+  Future<void> getFirstData(List<Komunitas> kom) async {
+    if (moreItemsAvailable == false) {
+      print('no more products');
+      return;
+    }
+    getMoreItems = true;
+
+    QuerySnapshot limit = await Firestore.instance
+        .collection("post")
+        .document(kom[idxKom].uid)
+        .collection("items")
+        .getDocuments();
+
+    Query q = Firestore.instance
+        .collection("post")
+        .document(kom[idxKom].uid)
+        .collection("items")
+        .orderBy("id_post")
+        .limit(2);
+
+    QuerySnapshot querySnapshot = await q.getDocuments();
+
+    querySnapshot.documents.forEach((f) {
+      Map<String, dynamic> temp = f.data;
+      postAllUser2.add(Post.fromMap(temp));
+      countAddData++;
+      jumlahPost++;
+      if (jumlahPost >= limit.documents.length) {
+        jumlahPost = 0;
+        idxKom++;
+        startAgain = true;
+        print('pindah index 2');
+      }
+    });
+
+    if (querySnapshot.documents.length < 1) {
+      moreItemsAvailable = false;
+    }
+
+    _lastDocument = querySnapshot.documents[querySnapshot.documents.length - 1];
+
+    getMoreItems = false;
+  }
+
+  Future<void> getFirstData2(List<Komunitas> kom) async {
+    if (moreItemsAvailable == false) {
+      print('no more products');
+      return;
+    }
+    getMoreItems = true;
+
+    QuerySnapshot limit = await Firestore.instance
+        .collection("post")
+        .document(kom[idxKom].uid)
+        .collection("items")
+        .getDocuments();
+
+    Query q = Firestore.instance
+        .collection("post")
+        .document(kom[idxKom].uid)
+        .collection("items")
+        .orderBy("id_post")
+        .limit(1);
+
+    QuerySnapshot querySnapshot = await q.getDocuments();
+
+    querySnapshot.documents.forEach((f) {
+      Map<String, dynamic> temp = f.data;
+      postAllUser2.add(Post.fromMap(temp));
+      print(Post.fromMap(temp).caption);
+      countAddData++;
+      jumlahPost++;
+      if (jumlahPost >= limit.documents.length) {
+        print('jumlahPost ${jumlahPost}');
+        print('limit.documents.length ${limit.documents.length}');
+        idxKom++;
+        jumlahPost = 0;
+        startAgain = true;
+        print('pindah index 3');
+      }
+    });
+
+    if (querySnapshot.documents.length < 1) {
+      moreItemsAvailable = false;
+    }
+
+    _lastDocument = querySnapshot.documents[querySnapshot.documents.length - 1];
+
+    getMoreItems = false;
+  }
+
   Future<List<List<Post>>> addData(List<Komunitas> kom) async {
-    for (var id in kom) {
-      postAllUser2 = await firestoreServices.getPostKomunitas(id.uid);
-      postAllUser.add(postAllUser2);
+    countAddData = 0;
+    while (countAddData < 2 &&
+        idxKom + 1 < kom.length &&
+        moreItemsAvailable != false) {
+      await getFirstData(kom);
+    }
+
+    postAllUser.add(postAllUser2);
+    getList().then((d) {
+      allData = [];
+      allData = d;
+      finish = true;
+    });
+
+    return postAllUser;
+  }
+
+  Future<List<List<Post>>> addData2(List<Komunitas> kom) async {
+    statusLoad = true;
+    countAddData = 0;
+    while (countAddData < 1 &&
+        idxKom + 1 <= kom.length &&
+        moreItemsAvailable != false) {
+      print('MASUK ANJENG');
+      print(countAddData);
+      await getFirstData2(kom);
+    }
+
+//    postAllUser.add(postAllUser2);
+
+    getList().then((d) {
+      allData = [];
+      allData = d;
+      finish = true;
+    });
+
+    return postAllUser;
+  }
+
+  Future<void> getDataAfter(List<Komunitas> kom) async {
+    if (moreItemsAvailable == false) {
+      print('no more products');
+      return;
+    }
+    getMoreItems = true;
+
+    QuerySnapshot limit = await Firestore.instance
+        .collection("post")
+        .document(kom[idxKom].uid)
+        .collection("items")
+        .getDocuments();
+
+    Query q = Firestore.instance
+        .collection("post")
+        .document(kom[idxKom].uid)
+        .collection("items")
+        .orderBy("id_post")
+        .startAfterDocument(_lastDocument)
+        .limit(1);
+    QuerySnapshot querySnapshot = await q.getDocuments();
+
+    querySnapshot.documents.forEach((f) {
+      Map<String, dynamic> temp = f.data;
+      postAllUser2.add(Post.fromMap(temp));
+      count++;
+      jumlahPost++;
+      if (jumlahPost > limit.documents.length - 1) {
+        jumlahPost = 0;
+        idxKom++;
+        startAgain = true;
+        print('pindah index 1');
+      }
+    });
+
+    if (querySnapshot.documents.length < 1) {
+      moreItemsAvailable = false;
+    }
+    _lastDocument = querySnapshot.documents[querySnapshot.documents.length - 1];
+
+    getMoreItems = false;
+  }
+
+  Future<List<List<Post>>> addMoreData(List<Komunitas> kom) async {
+    statusLoad = true;
+    count = 0;
+    while (
+        count < 1 && idxKom + 1 <= kom.length && moreItemsAvailable != false) {
+      print('asd');
+      await getDataAfter(kom);
+      count++;
     }
 
     getList().then((d) {
+      allData = [];
       allData = d;
       finish = true;
     });
@@ -158,8 +347,9 @@ class _HomeContentState extends State<HomeContent> {
     List<Widget> data = new List();
     for (var f in postAllUser) {
       for (var x in f) {
-        await userProfile(x.id_user);
-
+        await userProfile(
+          x.id_user,
+        );
         data.add(
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -219,7 +409,7 @@ class _HomeContentState extends State<HomeContent> {
                   fontSize: 12.0,
                   color: Colors.black,
                 ),
-                children: listOfText(x.caption),
+                children: listOfText(x.caption, x.id_post),
               ),
             ),
           ),
@@ -239,11 +429,19 @@ class _HomeContentState extends State<HomeContent> {
         );
       }
     }
+    statusLoad = false;
     return data;
   }
 
   @override
   Widget build(BuildContext context) {
+//    print(postAllUser.length);
+//    postAllUser.forEach((s){
+//      print(s.length);
+//      s.forEach((d){
+//        print(d.caption);
+//      });
+//    });
     return RefreshIndicator(
       key: _refreshIndicatorKey,
       onRefresh: _refresh,
@@ -283,10 +481,20 @@ class _HomeContentState extends State<HomeContent> {
         ),
         onNotification: (t) {
           if (t is ScrollEndNotification) {
-            print(_scrollController
-                .position.maxScrollExtent); // detect max scroll
-            print(_scrollController
-                .position.pixels); //detect current heigt pixels
+            if (_scrollController.position.maxScrollExtent ==
+                    _scrollController.position.pixels &&
+                statusLoad == false) {
+              if (startAgain) {
+                print('if (index beda)');
+                addData2(kom);
+                startAgain = false;
+//                postAllUser2 = [];
+              } else {
+                addMoreData(kom);
+                print('else (index sama)');
+              }
+              print('idxKom ${idxKom}');
+            }
           }
         },
       ),
@@ -296,6 +504,14 @@ class _HomeContentState extends State<HomeContent> {
   // untuk logic nantinya ketika user melakukan refresh
   // karena belum ada logic jadi masih ada error
   Future<Null> _refresh() {
+    finish = false;
+    idxKom = 0;
+    count = 0;
+    countAddData = 0;
+    startAgain = false;
+    getMoreItems = false;
+    moreItemsAvailable = true;
+
     return getData().then((x) {
       setState(() {});
     });

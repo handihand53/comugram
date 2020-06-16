@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:comugram/model/Comments.dart';
 import 'package:comugram/model/Joined.dart';
 import 'package:comugram/model/Komunitas.dart';
 import 'package:comugram/model/Post.dart';
@@ -13,6 +14,7 @@ import '../model/Komunitas.dart';
 import '../model/Komunitas.dart';
 import '../model/Komunitas.dart';
 import '../model/Komunitas.dart';
+import '../commentSession.dart';
 import '../model/User.dart';
 
 class FirestoreServices {
@@ -177,6 +179,8 @@ class FirestoreServices {
         .collection("post")
         .document(uid)
         .collection("items")
+        .orderBy("id_post")
+        .limit(3)
         .getDocuments()
         .then((snapshot) {
       snapshot.documents.forEach((data) {
@@ -184,6 +188,29 @@ class FirestoreServices {
         post.add(Post.fromMap(temp));
       });
     });
+    return post;
+  }
+
+  Future<List<Post>> getPostKomunitasByLimit(
+      String komId, String idPost) async {
+    List<Post> post = List<Post>();
+    await Firestore.instance
+        .collection("post")
+        .document(komId)
+        .collection("items")
+        .orderBy("id_post")
+        .startAfter([
+          {'id_post': idPost}
+        ])
+        .limit(2)
+        .getDocuments()
+        .then((snapshot) {
+          snapshot.documents.forEach((data) {
+            Map<String, dynamic> temp = data.data;
+            post.add(Post.fromMap(temp));
+          });
+        });
+    print(post.length);
     return post;
   }
 
@@ -218,5 +245,10 @@ class FirestoreServices {
     //   });
     // });
     return postResult;
+  }
+
+  Future<void> InsertDataComment(Comments com) async {
+    await Firestore.instance.collection('Comments').document(com.id_comment).setData(com.toMap());
+    print('print insert data');
   }
 }
