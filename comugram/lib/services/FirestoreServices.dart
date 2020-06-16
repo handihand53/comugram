@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'package:comugram/model/Comments.dart';
 import 'package:comugram/model/Joined.dart';
 import 'package:comugram/model/Komunitas.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../commentSession.dart';
 import '../model/User.dart';
 
 class FirestoreServices {
@@ -43,5 +45,10 @@ class FirestoreServices {
     Firestore.instance.collection('Komunitas').document(kom.uid).updateData({
       'member' : FieldValue.arrayRemove([uid])
     });
+  }
+
+  Future<void> InsertDataComment(Comments com) async {
+    await Firestore.instance.collection('Comments').document(com.id_comment).setData(com.toMap());
+    print('print insert data');
   }
 }
