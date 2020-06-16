@@ -6,6 +6,7 @@ class Post {
   String imageUrl;
   String caption;
   String tanggalBuat;
+  String location_id;
 
   Post(
       {this.id_post,
@@ -14,7 +15,8 @@ class Post {
       this.location,
       this.imageUrl,
       this.caption,
-      this.tanggalBuat});
+      this.tanggalBuat,
+      this.location_id});
   Post.fromMap(Map<String, dynamic> postMaps) {
     this.id_post = postMaps["id_post"];
     this.id_user = postMaps['id_user'];
@@ -23,6 +25,7 @@ class Post {
     this.imageUrl = postMaps["imageUrl"];
     this.caption = postMaps['caption'];
     this.tanggalBuat = postMaps['tanggalBuat'];
+    this.location_id = postMaps['id_location'];
   }
   Map<String, dynamic> toMap() {
     return {
@@ -32,7 +35,8 @@ class Post {
       "location": this.location,
       "imageUrl": this.imageUrl,
       "caption": this.caption,
-      "tanggalBuat": this.tanggalBuat
+      "tanggalBuat": this.tanggalBuat,
+      "id_location": this.location_id
     };
   }
 }
