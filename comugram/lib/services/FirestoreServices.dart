@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:comugram/model/Comments.dart';
 import 'package:comugram/model/Joined.dart';
 import 'package:comugram/model/Komunitas.dart';
 import 'package:comugram/model/Post.dart';
@@ -13,6 +14,7 @@ import '../model/Komunitas.dart';
 import '../model/Komunitas.dart';
 import '../model/Komunitas.dart';
 import '../model/Komunitas.dart';
+import '../commentSession.dart';
 import '../model/User.dart';
 
 class FirestoreServices {
@@ -243,5 +245,10 @@ class FirestoreServices {
     //   });
     // });
     return postResult;
+  }
+
+  Future<void> InsertDataComment(Comments com) async {
+    await Firestore.instance.collection('Comments').document(com.id_comment).setData(com.toMap());
+    print('print insert data');
   }
 }

@@ -297,15 +297,3 @@ showAlertDialog_Fail(BuildContext context, String msg) {
     },
   );
 }
-
-showLoadDialog(BuildContext context) {
-  AlertDialog load = AlertDialog(
-    content: CircularProgressIndicator(),
-  );
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return load;
-    },
-  );
-}
