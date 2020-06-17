@@ -20,10 +20,11 @@ class _HomeContentState extends State<HomeContent> {
   List<Widget> listOfData = new List();
   List<Widget> listOfData2 = new List();
   List<Widget> allData = new List();
-  ScrollController _scrollController = new ScrollController();
-  FirebaseAuth _auth = FirebaseAuth.instance;
   List<List<Post>> postAllUser = List();
   List<Post> postAllUser2 = List<Post>();
+  List<Komunitas> kom = List();
+  ScrollController _scrollController = new ScrollController();
+  FirebaseAuth _auth = FirebaseAuth.instance;
   FirestoreServices firestoreServices;
   User profile;
   bool finish = false;
@@ -31,7 +32,6 @@ class _HomeContentState extends State<HomeContent> {
   int idxKom = 0;
   int count = 0;
   int countAddData = 0;
-  List<Komunitas> kom = List();
   bool startAgain = false;
   bool getMoreItems = false;
   bool moreItemsAvailable = true;
@@ -379,7 +379,11 @@ class _HomeContentState extends State<HomeContent> {
                       ),
                     ),
                     InkWell(
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => MapsDetail(desc: x.location,id: x.location_id))),
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) => MapsDetail(
+                                  desc: x.location, id: x.location_id))),
                       child: Text(
                         x.location,
                         style: TextStyle(
@@ -512,7 +516,12 @@ class _HomeContentState extends State<HomeContent> {
     startAgain = false;
     getMoreItems = false;
     moreItemsAvailable = true;
-
+    postAllUser2 = [];
+    listOfData = [];
+    listOfData2 = [];
+    allData = [];
+    postAllUser = [];
+    kom = [];
     return getData().then((x) {
       setState(() {});
     });
