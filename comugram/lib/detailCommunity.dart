@@ -19,6 +19,7 @@ class _DetailCommunityState extends State<DetailCommunity> {
   FirestoreServices firestoreServices;
   GoogleMapsService googleMapsService;
   List post = List();
+  bool isEmpty = false;
   @override
   void initState() {
     super.initState();
@@ -30,6 +31,7 @@ class _DetailCommunityState extends State<DetailCommunity> {
 
   void getPost() async {
     post = await firestoreServices.getPostKomunitas2(widget.komunitas.uid);
+    if (post.length == 0) isEmpty = true;
     setState(() {});
     print(post.length);
   }
@@ -138,27 +140,37 @@ class _DetailCommunityState extends State<DetailCommunity> {
           height: 40,
         ),
       ),
-      body: ListView.builder(
-        itemCount: post.length,
-        itemBuilder: (BuildContext context, int index) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              header(post[index]),
-              Flexible(
-                fit: FlexFit.loose,
-                child: new Image.network(
-                  post[index]['post'].imageUrl,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              footer(post[index]),
-            ],
-          );
-        },
-      ),
+      body: post.length == 0
+          ? Center(
+              child: isEmpty == true
+                  ? Text(
+                      'Belum ada Postingan',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                    )
+                  : CircularProgressIndicator(),
+            )
+          : ListView.builder(
+              itemCount: post.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    header(post[index]),
+                    Flexible(
+                      fit: FlexFit.loose,
+                      child: new Image.network(
+                        post[index]['post'].imageUrl,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    footer(post[index]),
+                  ],
+                );
+              },
+            ),
     );
   }
 }

@@ -14,6 +14,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:location/location.dart' as LocationManager;
 import 'package:intl/intl.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'package:uuid/uuid.dart';
 
 class UploadPost extends StatefulWidget {
@@ -81,6 +82,11 @@ class _UploadPostState extends State<UploadPost> {
 
   @override
   Widget build(Object context) {
+    ProgressDialog pD = ProgressDialog(
+      context,
+      type: ProgressDialogType.Normal,
+      isDismissible: false,
+    );
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(
@@ -95,6 +101,7 @@ class _UploadPostState extends State<UploadPost> {
                 style: TextStyle(color: Colors.black, fontSize: 20.0),
               ),
               onTap: () async {
+                pD.show();
                 String url = await firestoreServices
                     .uploadImgKomunitas(widget.imageFile);
                 String tgl = DateFormat('dd MMMM yyyy').format(dateTime);
@@ -110,6 +117,7 @@ class _UploadPostState extends State<UploadPost> {
                     tanggalBuat: tgl,
                     location_id: location_id);
                 firestoreServices.insertPost(post);
+                pD.hide();
                 Navigator.pushReplacement(
                     context, MaterialPageRoute(builder: ((context) => Home())));
               },
