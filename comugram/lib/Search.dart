@@ -114,10 +114,10 @@ class _SearchState extends State<Search> {
     getJoinedKomunitas().then((s) {
       setState(() {});
     });
-    super.initState();
     getKomunitasDataPopuler().then((s) {
       setState(() {});
     });
+    super.initState();
     _focusNodeSearch = new FocusNode();
     _focusNodeSearch.addListener(_onOnFocusNodeEvent);
   }
@@ -264,10 +264,13 @@ class _SearchState extends State<Search> {
 
   void _showDialog(String desc, String img, String name, String id) {
     bool status = true;
-    listJoined.forEach((idJoined) {
-      status = idJoined.kom_id != id;
-    });
+    for(var idJoined in listJoined){
+      if(idJoined.kom_id == id) {
+        status = false;
+      }
+    }
 
+    print('status ${status}');
     showGeneralDialog(
         barrierColor: Colors.black.withOpacity(0.5),
         transitionBuilder: (context, a1, a2, widget) {
@@ -388,6 +391,10 @@ class _SearchState extends State<Search> {
                             FirestoreServices firestoreServices =
                                 new FirestoreServices();
                             firestoreServices.gabungKomunitas(id, user.uid);
+                            listJoined=[];
+                            getJoinedKomunitas().then((s) {
+                              setState(() {});
+                            });
                             Navigator.pop(context);
                             showToast(
                               'Berhasil mengikuti komunitas ${name}',
@@ -416,6 +423,10 @@ class _SearchState extends State<Search> {
                             FirestoreServices firestoreServices =
                                 new FirestoreServices();
                             firestoreServices.keluarKomunitas(id, user.uid);
+                            listJoined=[];
+                            getJoinedKomunitas().then((s) {
+                              setState(() {});
+                            });
                             Navigator.pop(context);
                             showToast(
                               'Berhenti mengikuti komunitas ${name}',
