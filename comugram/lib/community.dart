@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
-
 import 'model/Komunitas.dart';
 import 'model/Komunitas.dart';
 import 'model/Komunitas.dart';

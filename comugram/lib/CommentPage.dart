@@ -26,14 +26,13 @@ class _CommentPageState extends State<CommentPage> {
 
   Future<List<Comments>> getComments() async {
     List<Comments> _comments = [];
-    QuerySnapshot data = await Firestore.instance
-        .collection('Comments')
-        .where('id_post', isEqualTo: idPost)
-        .orderBy('time')
-        .getDocuments();
+    print(idPost);
     _comments.clear();
-    data.documents.forEach((DocumentSnapshot doc) {
-      _comments.add(Comments.fromDocument(doc));
+    QuerySnapshot data = await Firestore.instance.collection('Comments').orderBy('time').getDocuments();
+    data.documents.forEach((DocumentSnapshot doc){
+      if(doc['id_post']==idPost){
+        _comments.add(Comments.fromDocument(doc));
+      }
     });
     print('ini get komen');
     return _comments;
@@ -61,7 +60,7 @@ class _CommentPageState extends State<CommentPage> {
     await Fs.InsertDataComment(komentar);
     setState(() {
       getComments();
-      buildCommentList();
+      //buildCommentList();
     });
   }
 
@@ -81,8 +80,8 @@ class _CommentPageState extends State<CommentPage> {
 
   @override
   void initState() {
-    super.initState();
     getComments();
+    super.initState();
   }
 
   @override
