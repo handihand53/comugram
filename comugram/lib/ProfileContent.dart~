@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comugram/EditProfile.dart';
 import 'package:comugram/HomeContent.dart';
 import 'package:comugram/Login.dart';
-import 'package:comugram/OwnedContentProfile.dart';
 import 'package:comugram/ResetPassword.dart';
 import 'package:comugram/services/FirestoreServices.dart';
 import 'package:flutter/widgets.dart';
@@ -263,7 +262,7 @@ class _ProfileContentState extends State<ProfileContent> with SingleTickerProvid
               Expanded(
                 child: TabBarView(
                   children: [
-                    OwnedContentProfile(),
+                    HomeContent(),
                     JoinedContentProfile(),
                   ],
                 ),
