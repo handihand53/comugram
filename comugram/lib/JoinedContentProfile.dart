@@ -59,10 +59,10 @@ class _JoinedContentProfileState extends State<JoinedContentProfile> {
   //   if (komunitas.length == 0) isEmpy = true;
   //   setState(() {});
   // }
-
+  String owner;
   Future<void> onSearchTextChanged() async {
     FirebaseUser user = await _auth.currentUser();
-    String owner = user.uid;
+    owner = user.uid;
     komunitas = searchController.text.length > 0
         ? await firestoreServices.cariKomunitasJoined(
         searchController.text, owner)
@@ -266,7 +266,7 @@ class _JoinedContentProfileState extends State<JoinedContentProfile> {
                       child: RaisedButton(
                         onPressed: () async {
                           print(kom.joinedId);
-                          await firestoreServices.unjoinKomunitas(kom.joinedId);
+                          await firestoreServices.keluarKomunitas(kom.uid,owner);
                           _refresh();
                           Navigator.pop(context);
                         },
