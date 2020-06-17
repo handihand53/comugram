@@ -15,7 +15,7 @@ class CommentPage extends StatefulWidget {
   _CommentPageState createState() => _CommentPageState(this.idPost);
 }
 
-class _CommentPageState extends State<CommentPage>{
+class _CommentPageState extends State<CommentPage> {
   String idPost;
   _CommentPageState(this.idPost);
   User profile;
@@ -24,27 +24,40 @@ class _CommentPageState extends State<CommentPage>{
   FirestoreServices Fs = FirestoreServices();
   TextEditingController _commentController = TextEditingController();
 
-  Future<List<Comments>> getComments()async{
+  Future<List<Comments>> getComments() async {
     List<Comments> _comments = [];
-    QuerySnapshot data = await Firestore.instance.collection('Comments').where('id_post', isEqualTo: idPost).orderBy('time').getDocuments();
+    QuerySnapshot data = await Firestore.instance
+        .collection('Comments')
+        .where('id_post', isEqualTo: idPost)
+        .orderBy('time')
+        .getDocuments();
     _comments.clear();
-    data.documents.forEach((DocumentSnapshot doc){
+    data.documents.forEach((DocumentSnapshot doc) {
       _comments.add(Comments.fromDocument(doc));
     });
     print('ini get komen');
     return _comments;
   }
 
-  Future<void> _addComment(String uid, String com)async{
+  Future<void> _addComment(String uid, String com) async {
     _commentController.clear();
-    await Firestore.instance.collection('User').document(uid).get().then((snapshot){
+    await Firestore.instance
+        .collection('User')
+        .document(uid)
+        .get()
+        .then((snapshot) {
       profile = User.fromMap(snapshot.data);
     });
     String jam = DateFormat.Hm().format(DateTime.now());
-    Comments komentar = Comments(id_comment: uuid.v4(),
-        id_post: idPost, user_id: profile.uid,
-        username: profile.username,urlProfil: profile.urlProfile,
-        comment: com, waktu: jam,time: Timestamp.now());
+    Comments komentar = Comments(
+        id_comment: uuid.v4(),
+        id_post: idPost,
+        user_id: profile.uid,
+        username: profile.username,
+        urlProfil: profile.urlProfile,
+        comment: com,
+        waktu: jam,
+        time: Timestamp.now());
     await Fs.InsertDataComment(komentar);
     setState(() {
       getComments();
@@ -52,7 +65,7 @@ class _CommentPageState extends State<CommentPage>{
     });
   }
 
-  Widget buildCommentList(){
+  Widget buildCommentList() {
     return FutureBuilder<List<Comments>>(
         future: getComments(),
         builder: (context, snapshot) {
@@ -64,14 +77,13 @@ class _CommentPageState extends State<CommentPage>{
             children: snapshot.data,
           );
         });
-    }
+  }
 
   @override
   void initState() {
     super.initState();
     getComments();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -81,25 +93,22 @@ class _CommentPageState extends State<CommentPage>{
       ),
       body: Column(
         children: <Widget>[
-          Expanded(
-              child: buildCommentList()
-          ),
+          Expanded(child: buildCommentList()),
           Divider(),
           ListTile(
             title: TextFormField(
               controller: _commentController,
               decoration: InputDecoration(
                   contentPadding: EdgeInsets.all(20),
-                  hintText: 'Tambahkan Komentar'
-              ),
+                  hintText: 'Tambahkan Komentar'),
               //onFieldSubmitted:,
             ),
             trailing: OutlineButton(
-              onPressed: ()async{
+              onPressed: () async {
                 FirebaseUser user = await FirebaseAuth.instance.currentUser();
-                await _addComment(user.uid,_commentController.text);
+                await _addComment(user.uid, _commentController.text);
               },
-              borderSide: BorderSide.none, 
+              borderSide: BorderSide.none,
               child: Icon(Icons.send),
             ),
           ),

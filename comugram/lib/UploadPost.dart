@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comugram/Home.dart';
 import 'package:comugram/MapsDetail.dart';
 import 'package:comugram/model/Komunitas.dart';
@@ -115,7 +116,8 @@ class _UploadPostState extends State<UploadPost> {
                     imageUrl: url,
                     caption: captionController.text,
                     tanggalBuat: tgl,
-                    location_id: location_id);
+                    location_id: location_id,
+                    time: Timestamp.now());
                 firestoreServices.insertPost(post);
                 pD.hide();
                 Navigator.pushReplacement(

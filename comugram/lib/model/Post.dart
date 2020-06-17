@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Post {
   String id_post;
   String id_user;
@@ -7,6 +9,7 @@ class Post {
   String caption;
   String tanggalBuat;
   String location_id;
+  Timestamp time;
 
   Post(
       {this.id_post,
@@ -16,7 +19,8 @@ class Post {
       this.imageUrl,
       this.caption,
       this.tanggalBuat,
-      this.location_id});
+      this.location_id,
+      this.time});
   Post.fromMap(Map<String, dynamic> postMaps) {
     this.id_post = postMaps["id_post"];
     this.id_user = postMaps['id_user'];
@@ -26,6 +30,7 @@ class Post {
     this.caption = postMaps['caption'];
     this.tanggalBuat = postMaps['tanggalBuat'];
     this.location_id = postMaps['id_location'];
+    this.time = postMaps['time'];
   }
   Map<String, dynamic> toMap() {
     return {
@@ -36,7 +41,8 @@ class Post {
       "imageUrl": this.imageUrl,
       "caption": this.caption,
       "tanggalBuat": this.tanggalBuat,
-      "id_location": this.location_id
+      "id_location": this.location_id,
+      "time": this.time
     };
   }
 }
