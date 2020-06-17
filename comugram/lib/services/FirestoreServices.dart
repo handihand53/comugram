@@ -54,6 +54,7 @@ class FirestoreServices {
       'id_user': uid,
       'id_komunitas': id,
     });
+    print(id.toString() + uid.toString());
   }
 
   Future<Map<String, dynamic>> selectNameKomunitas(String komId) async {
@@ -74,6 +75,7 @@ class FirestoreServices {
         .collection('joined')
         .document(id.toString() + uid.toString())
         .delete();
+    print(id.toString() + uid.toString());
   }
 
   Future<List<Komunitas>> getByCategory(String cat) async {

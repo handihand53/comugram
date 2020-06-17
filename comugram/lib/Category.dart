@@ -231,9 +231,11 @@ class _CategoryState extends State<Category> {
 
   void _showDialog(String desc, String img, String name, String id) {
     bool status = true;
-    listJoined.forEach((idJoined) {
-      status = idJoined.kom_id != id;
-    });
+    for(var idJoined in listJoined){
+      if(idJoined.kom_id == id) {
+        status = false;
+      }
+    }
 
     showGeneralDialog(
         barrierColor: Colors.black.withOpacity(0.5),
@@ -356,6 +358,10 @@ class _CategoryState extends State<Category> {
                             FirestoreServices firestoreServices =
                                 new FirestoreServices();
                             firestoreServices.gabungKomunitas(id, user.uid);
+                            listJoined=[];
+                            getJoinedKomunitas().then((s) {
+                              setState(() {});
+                            });
                             Navigator.pop(context);
                             showToast(
                               'Berhasil mengikuti komunitas ${name}',
@@ -383,6 +389,10 @@ class _CategoryState extends State<Category> {
                                 await FirebaseAuth.instance.currentUser();
                             FirestoreServices firestoreServices =
                                 new FirestoreServices();
+                            listJoined=[];
+                            getJoinedKomunitas().then((s) {
+                              setState(() {});
+                            });
                             firestoreServices.keluarKomunitas(id, user.uid);
                             Navigator.pop(context);
                             showToast(
