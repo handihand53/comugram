@@ -129,7 +129,9 @@ class _HomeContentState extends State<HomeContent> {
 
   @override
   void initState() {
-    getData().then((x) {});
+    getData().then((x) {
+      print('get data');
+    });
 
     firestoreServices = FirestoreServices();
     super.initState();
@@ -245,7 +247,7 @@ class _HomeContentState extends State<HomeContent> {
   Future<List<List<Post>>> addData(List<Komunitas> kom) async {
     countAddData = 0;
     while (countAddData < 2 &&
-        idxKom + 1 < kom.length &&
+        idxKom + 1 <= kom.length &&
         moreItemsAvailable != false) {
       await getFirstData(kom);
     }
