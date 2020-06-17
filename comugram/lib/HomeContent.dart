@@ -507,7 +507,6 @@ class _HomeContentState extends State<HomeContent> {
   }
 
   // untuk logic nantinya ketika user melakukan refresh
-  // karena belum ada logic jadi masih ada error
   Future<Null> _refresh() {
     finish = false;
     idxKom = 0;
