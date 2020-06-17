@@ -22,6 +22,7 @@ class _StateMapsDetail extends State<MapsDetail> {
   }
 
   void initMaps() async {
+    print(widget.id);
     maps = await googleMapsService.getLatLng(widget.id);
     print(maps['lat']);
     double lat = maps['lat'];
