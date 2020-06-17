@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comugram/EditProfile.dart';
 import 'package:comugram/HomeContent.dart';
 import 'package:comugram/Login.dart';
+import 'package:comugram/PostContentProfile.dart';
 import 'package:comugram/ResetPassword.dart';
 import 'package:comugram/services/FirestoreServices.dart';
 import 'package:flutter/widgets.dart';
@@ -9,6 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'community.dart';
 import 'model/User.dart';
 
 class ProfileContent extends StatefulWidget {
@@ -261,9 +263,9 @@ class _ProfileContentState extends State<ProfileContent> with SingleTickerProvid
               Expanded(
                 child: TabBarView(
                   children: [
+                    PostContentProfile(),
                     HomeContent(),
-                    HomeContent(),
-                    HomeContent(),
+                    Community(),
                   ],
                 ),
               ),

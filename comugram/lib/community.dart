@@ -2,7 +2,6 @@ import 'package:comugram/detailCommunity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
-
 import 'model/Komunitas.dart';
 import 'model/Komunitas.dart';
 import 'model/Komunitas.dart';
