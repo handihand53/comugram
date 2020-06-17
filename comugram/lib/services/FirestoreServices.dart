@@ -43,7 +43,10 @@ class FirestoreServices {
         .collection('Komunitas')
         .document(kom.uid)
         .setData(kom.toMap());
-    Firestore.instance.collection('joined').document(uid).setData(join.toMap());
+    Firestore.instance
+        .collection('joined')
+        .document(kom.uid.toString() + uid.toString())
+        .setData(join.toMap());
   }
 
   Future<void> gabungKomunitas(String id, String uid) {
