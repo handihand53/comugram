@@ -16,7 +16,7 @@ class EditProfile extends StatefulWidget {
   _EditProfileState createState() => _EditProfileState(this.editUser);
 }
 
-class _EditProfileState extends State<EditProfile> with Validation{
+class _EditProfileState extends State<EditProfile> with Validation {
   final formKey = GlobalKey<FormState>();
   User editUser;
   _EditProfileState(this.editUser);
@@ -26,38 +26,43 @@ class _EditProfileState extends State<EditProfile> with Validation{
   ProgressDialog pD;
   File imgPick;
 
-  getImage(String result) async{
-    if(result == 'pickImg'){
+  getImage(String result) async {
+    if (result == 'pickImg') {
       imgPick = await ImagePicker.pickImage(source: ImageSource.camera);
-      if(imgPick != null){
+      if (imgPick != null) {
         File croppedImg = await ImageCropper.cropImage(
           sourcePath: imgPick.path,
           aspectRatio: CropAspectRatio(
-            ratioX: 1,ratioY: 1,
+            ratioX: 1,
+            ratioY: 1,
           ),
           compressQuality: 100,
           maxHeight: 700,
           maxWidth: 700,
         );
-        setState(() {imgPick = croppedImg;});
+        setState(() {
+          imgPick = croppedImg;
+        });
       }
-    }else{
+    } else {
       imgPick = await ImagePicker.pickImage(source: ImageSource.gallery);
-      if(imgPick != null){
+      if (imgPick != null) {
         File croppedImg = await ImageCropper.cropImage(
           sourcePath: imgPick.path,
           aspectRatio: CropAspectRatio(
-            ratioX: 1,ratioY: 1,
+            ratioX: 1,
+            ratioY: 1,
           ),
           compressQuality: 100,
           maxHeight: 700,
           maxWidth: 700,
         );
-        setState(() {imgPick = croppedImg;});
+        setState(() {
+          imgPick = croppedImg;
+        });
       }
     }
   }
-
 
   @override
   void initState() {
@@ -68,15 +73,22 @@ class _EditProfileState extends State<EditProfile> with Validation{
 
   @override
   Widget build(BuildContext context) {
-    ProgressDialog pD = ProgressDialog(context,type: ProgressDialogType.Normal,isDismissible: false,);
+    ProgressDialog pD = ProgressDialog(
+      context,
+      type: ProgressDialogType.Normal,
+      isDismissible: false,
+    );
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.orange,
-        title: Text("Edit Profile", style: TextStyle(
-          color: Colors.white,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),),
+        title: Text(
+          "Edit Profile",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       body: Center(
         child: Form(
@@ -84,7 +96,7 @@ class _EditProfileState extends State<EditProfile> with Validation{
           child: ListView(
             children: <Widget>[
               PopupMenuButton<String>(
-                onSelected: (String result){
+                onSelected: (String result) {
                   print(result);
                   getImage(result);
                 },
@@ -98,45 +110,55 @@ class _EditProfileState extends State<EditProfile> with Validation{
                     child: Text('Pilih dari Gallery'),
                   )
                 ],
-                child: (imgPick== null) ?
-                Container(
-                    child: Column(children: <Widget>[
-                      SizedBox(height: 15),
-                      Container(
-                        width: 150,
-                        height: 150,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8.0),
-                          child: editUser.urlProfile != '' ? Image.network(editUser.urlProfile) : Image.asset('images/sensor.png'),
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Text("Ganti Foto", style: TextStyle(
-                        color: Colors.orange,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),),
-                    ],)
-                ) : Container(
-                    child: Column(children: <Widget>[
-                      SizedBox(height: 15),
-                      Container(
-                        width: 150,
-                        height: 150,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8.0),
-                          child: Image.file(imgPick),
-                        ),
-                      ),
-                      Text('Ganti Foto'),
-                    ],)
-                ),
+                child: (imgPick == null)
+                    ? Container(
+                        child: Column(
+                        children: <Widget>[
+                          SizedBox(height: 15),
+                          Container(
+                            width: 150,
+                            height: 150,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8.0),
+                              child: editUser.urlProfile != null
+                                  ? Image.network(editUser.urlProfile)
+                                  : Image.asset('images/sensor.png'),
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            "Ganti Foto",
+                            style: TextStyle(
+                              color: Colors.orange,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ],
+                      ))
+                    : Container(
+                        child: Column(
+                        children: <Widget>[
+                          SizedBox(height: 15),
+                          Container(
+                            width: 150,
+                            height: 150,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8.0),
+                              child: Image.file(imgPick),
+                            ),
+                          ),
+                          Text('Ganti Foto'),
+                        ],
+                      )),
               ),
-              Padding (
+              Padding(
                 padding: EdgeInsets.all(15),
                 child: TextFormField(
                   controller: nameController,
-                  style: TextStyle(color: Colors.grey,),
+                  style: TextStyle(
+                    color: Colors.grey,
+                  ),
                   keyboardType: TextInputType.text,
                   decoration: InputDecoration(
                     labelText: 'Nama Lengkap',
@@ -147,9 +169,8 @@ class _EditProfileState extends State<EditProfile> with Validation{
                     labelStyle: TextStyle(color: Colors.grey),
                     enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(
-                          color: Colors.grey,
-                        )
-                    ),
+                      color: Colors.grey,
+                    )),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.orange),
                     ),
@@ -160,11 +181,13 @@ class _EditProfileState extends State<EditProfile> with Validation{
                   validator: validateName,
                 ),
               ),
-              Padding (
+              Padding(
                 padding: EdgeInsets.all(15),
                 child: TextFormField(
                   controller: UnameController,
-                  style: TextStyle(color: Colors.grey,),
+                  style: TextStyle(
+                    color: Colors.grey,
+                  ),
                   keyboardType: TextInputType.text,
                   decoration: InputDecoration(
                     labelText: 'Username',
@@ -175,9 +198,8 @@ class _EditProfileState extends State<EditProfile> with Validation{
                     labelStyle: TextStyle(color: Colors.grey),
                     enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(
-                          color: Colors.grey,
-                        )
-                    ),
+                      color: Colors.grey,
+                    )),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.orange),
                     ),
@@ -189,39 +211,41 @@ class _EditProfileState extends State<EditProfile> with Validation{
                 ),
               ),
               //Tombol
-              Padding (
-                padding: EdgeInsets.only(top: 20.0,bottom:20.0,right: 15,left: 15),
+              Padding(
+                padding: EdgeInsets.only(
+                    top: 20.0, bottom: 20.0, right: 15, left: 15),
                 child: Row(
-                  children: <Widget> [
+                  children: <Widget>[
                     // tombol simpan
                     Expanded(
                       child: Material(
                         elevation: 1.0,
                         color: Color.fromRGBO(255, 153, 0, 1),
                         child: MaterialButton(
-                          onPressed: () async{
-                            if(formKey.currentState.validate()){
+                          onPressed: () async {
+                            if (formKey.currentState.validate()) {
                               formKey.currentState.save();
                               await pD.show();
                               editUser.namaLengkap = nameController.text;
                               editUser.username = UnameController.text;
-                              if(imgPick!=null){
-                                String url = await Fs.uploadImgProfile(imgPick, editUser.uid);
+                              if (imgPick != null) {
+                                String url = await Fs.uploadImgProfile(
+                                    imgPick, editUser.uid);
                                 editUser.urlProfile = url;
                                 Fs.EditDataUser(editUser);
-                              }else{
+                              } else {
                                 Fs.EditDataUser(editUser);
                               }
                               await pD.hide();
                               Navigator.pop(context);
                             }
                           },
-                          padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
-                          child: Text('SIMPAN',
-                            style: TextStyle(
-                                fontSize: 15.0,
-                                color: Colors.white
-                            ),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 10.0, horizontal: 30.0),
+                          child: Text(
+                            'SIMPAN',
+                            style:
+                                TextStyle(fontSize: 15.0, color: Colors.white),
                           ),
                         ),
                       ),

@@ -266,7 +266,10 @@ class _CommunityState extends State<Community> {
                       child: RaisedButton(
                         onPressed: () async {
                           print(kom.joinedId);
-                          await firestoreServices.unjoinKomunitas(kom.joinedId);
+                          FirebaseUser user = await _auth.currentUser();
+                          String owner = user.uid;
+                          await firestoreServices.keluarKomunitas(
+                              kom.uid, owner);
                           _refresh();
                           Navigator.pop(context);
                         },

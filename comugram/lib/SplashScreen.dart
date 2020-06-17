@@ -31,17 +31,18 @@ class _SplashScreenState extends State<SplashScreenPage> {
   Future<void> navigationPage() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     FirestoreServices fs = FirestoreServices();
-    Map<String, dynamic> tempUser = await fs.selectUser(user.uid);
+    //Map<String, dynamic> tempUser = await fs.selectUser(user.uid);
     if (user != null) {
-      if(tempUser==null) {
-        Navigator.pushReplacement(this.context,
-            MaterialPageRoute(builder: (BuildContext context) => GoogleFormSignUp()));
-      } else {
-        Navigator.pushReplacement(this.context,
-            MaterialPageRoute(builder: (BuildContext context) => Home()));
-      }
-    } else{
-      Navigator.pushReplacement(this.context, MaterialPageRoute(builder: (BuildContext context) => Login()));
+      // if(tempUser==null) {
+      //   Navigator.pushReplacement(this.context,
+      //       MaterialPageRoute(builder: (BuildContext context) => GoogleFormSignUp()));
+      // } else {
+      Navigator.pushReplacement(this.context,
+          MaterialPageRoute(builder: (BuildContext context) => Home()));
+      // }
+    } else {
+      Navigator.pushReplacement(this.context,
+          MaterialPageRoute(builder: (BuildContext context) => Login()));
     }
   }
 

@@ -56,10 +56,6 @@ class FirestoreServices {
     });
   }
 
-  Future<void> unjoinKomunitas(String id) {
-    Firestore.instance.collection('joined').document(id).delete();
-  }
-
   Future<Map<String, dynamic>> selectNameKomunitas(String komId) async {
     Map<String, dynamic> temp = Map<String, dynamic>();
     await Firestore.instance
@@ -71,8 +67,9 @@ class FirestoreServices {
     });
     return temp;
   }
-  
+
   Future<void> keluarKomunitas(String id, String uid) {
+    print(id.toString() + uid.toString());
     Firestore.instance
         .collection('joined')
         .document(id.toString() + uid.toString())
@@ -179,10 +176,10 @@ class FirestoreServices {
 
     for (DocumentSnapshot element in snapshot) {
       Map<String, dynamic> tempKomunitas =
-      await selectNameKomunitas(element['id_komunitas']);
+          await selectNameKomunitas(element['id_komunitas']);
       Map<String, dynamic> tempUser = await selectUser(tempKomunitas['owner']);
       tempKomunitas['namaOwner'] = tempUser['namaLengkap'];
-      if(tempKomunitas['owner']==uid){
+      if (tempKomunitas['owner'] == uid) {
         Komunitas kom = Komunitas.fromMap(tempKomunitas);
         komunitas.add(kom);
       }

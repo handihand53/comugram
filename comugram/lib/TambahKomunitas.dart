@@ -32,7 +32,6 @@ class _KomunitasFormState extends State<KomunitasForm> with Validation{
 
   getImage(String result) async{
     if(result == 'pickImg'){
-      imgPick = await ImagePicker.pickImage(source: ImageSource.camera);
       if(imgPick != null){
         File croppedImg = await ImageCropper.cropImage(
           sourcePath: imgPick.path,

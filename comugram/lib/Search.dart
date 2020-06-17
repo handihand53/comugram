@@ -328,8 +328,7 @@ class _SearchState extends State<Search> {
                       height: 7.0,
                     ),
                     Padding(
-                      padding:
-                      const EdgeInsets.symmetric(vertical: 6.0),
+                      padding: const EdgeInsets.symmetric(vertical: 6.0),
                       child: InkWell(
                         onTap: () async {
                           ProgressDialog pD = ProgressDialog(
@@ -675,13 +674,19 @@ class _SearchState extends State<Search> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              finish ?
-              listKomunitas.length == 0 ?
-              Text('Belum ada komunitas', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),) : Column(
-                children: listSearch,
-              ) :Center(
-                child: CircularProgressIndicator(),
-              )
+              finish
+                  ? listKomunitas.length == 0
+                      ? Text(
+                          'Belum ada komunitas',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.w600),
+                        )
+                      : Column(
+                          children: listSearch,
+                        )
+                  : Center(
+                      child: CircularProgressIndicator(),
+                    )
             ],
           );
   }
