@@ -17,6 +17,7 @@ import 'package:location/location.dart' as LocationManager;
 import 'package:intl/intl.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:uuid/uuid.dart';
+import 'Validator.dart';
 
 class UploadPost extends StatefulWidget {
   File imageFile;
@@ -37,6 +38,8 @@ class _UploadPostState extends State<UploadPost> {
   var uuid = Uuid();
   GoogleMapsService googleMapsService;
   String location, location_id;
+  Validation val = Validation();
+  final formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -102,100 +105,110 @@ class _UploadPostState extends State<UploadPost> {
                 style: TextStyle(color: Colors.black, fontSize: 20.0),
               ),
               onTap: () async {
-                pD.show();
-                String url = await firestoreServices
-                    .uploadImgKomunitas(widget.imageFile);
-                String tgl = DateFormat('dd MMMM yyyy').format(dateTime);
-                FirebaseUser user = await _auth.currentUser();
-                String owner = user.uid;
-                Post post = Post(
-                    id_post: uuid.v4(),
-                    id_user: owner,
-                    id_komunitas: _selectedkomunitas.uid,
-                    location: location,
-                    imageUrl: url,
-                    caption: captionController.text,
-                    tanggalBuat: tgl,
-                    location_id: location_id,
-                    time: Timestamp.now());
-                firestoreServices.insertPost(post);
-                pD.hide();
-                Navigator.pushReplacement(
-                    context, MaterialPageRoute(builder: ((context) => Home())));
+                if (formKey.currentState.validate()) {
+                  pD.show();
+                  String url = await firestoreServices
+                      .uploadImgKomunitas(widget.imageFile);
+                  String tgl = DateFormat('dd MMMM yyyy').format(dateTime);
+                  FirebaseUser user = await _auth.currentUser();
+                  String owner = user.uid;
+                  Post post = Post(
+                      id_post: uuid.v4(),
+                      id_user: owner,
+                      id_komunitas: _selectedkomunitas.uid,
+                      location: location,
+                      imageUrl: url,
+                      caption: captionController.text,
+                      tanggalBuat: tgl,
+                      location_id: location_id,
+                      time: Timestamp.now());
+                  firestoreServices.insertPost(post);
+                  pD.hide();
+                  Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: ((context) => Home())));
+                }
               },
             ),
           ),
         ],
       ),
-      body: Column(children: <Widget>[
-        Row(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(top: 12.0, left: 12.0),
-              child: Container(
-                width: 80.0,
-                height: 80.0,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: FileImage(widget.imageFile),
-                  ),
-                ),
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 12.0, right: 8.0),
-                child: TextField(
-                  controller: captionController,
-                  maxLines: 3,
-                  keyboardType: TextInputType.multiline,
-                  decoration: InputDecoration(
-                    hintText: 'Write a caption...',
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: GestureDetector(
-            onTap: () async {
-              Prediction p = await googleMapsService.getPrediction(context);
-              if (p != null) {
-                location_id = p.placeId;
-                var arr = p.description.split(",");
-                location = arr[0];
-                print(location);
-                setState(() {});
-              }
-            },
-            child: location == null
-                ? Text("Add Location")
-                : Wrap(spacing: 8.0, runSpacing: 4.0, children: <Widget>[
-                    Icon(
-                      Icons.location_on,
-                      color: Colors.green,
-                      size: 30.0,
+      body: Form(
+        key: formKey,
+        child: Column(children: <Widget>[
+          Row(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(top: 12.0, left: 12.0),
+                child: Container(
+                  width: 80.0,
+                  height: 80.0,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: FileImage(widget.imageFile),
                     ),
-                    Text(location),
-                  ]),
-          ),
-        ),
-        komunitas.length == 0
-            ? Center(
-                child: CircularProgressIndicator(),
-              )
-            : Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: DropdownButton(
-                  value: _selectedkomunitas,
-                  items: _dropdownMenuItems,
-                  onChanged: onChangeDropdownItem,
+                  ),
                 ),
               ),
-      ]),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 12.0, right: 8.0),
+                  child: TextFormField(
+                    controller: captionController,
+                    validator: val.validateCaption,
+                    maxLines: 3,
+                    keyboardType: TextInputType.multiline,
+                    decoration: InputDecoration(
+                      hintText: 'Write a caption...',
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: GestureDetector(
+              onTap: () async {
+                Prediction p = await googleMapsService.getPrediction(context);
+                if (p != null) {
+                  location_id = p.placeId;
+                  var arr = p.description.split(",");
+                  location = arr[0];
+                  print(location);
+                  setState(() {});
+                }
+              },
+              child: location == null
+                  ? Text("Add Location")
+                  : Wrap(spacing: 8.0, runSpacing: 4.0, children: <Widget>[
+                      Icon(
+                        Icons.location_on,
+                        color: Colors.green,
+                        size: 30.0,
+                      ),
+                      Text(location),
+                    ]),
+            ),
+          ),
+          komunitas.length == 0
+              ? Center(
+                  child: CircularProgressIndicator(),
+                )
+              : Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: DropdownButtonFormField(
+                    value: _selectedkomunitas,
+                    items: _dropdownMenuItems,
+                    onChanged: onChangeDropdownItem,
+                    validator: (value) => value.namaKomunitas ==
+                            "----silahkan pilih komunitas----"
+                        ? "silahkan pilih komunitas"
+                        : null,
+                  ),
+                ),
+        ]),
+      ),
     );
   }
 }
