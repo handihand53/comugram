@@ -1,5 +1,6 @@
 import 'package:comugram/AddPostPage.dart';
 import 'package:comugram/HomeContent.dart';
+import 'package:comugram/TambahKomunitas.dart';
 import 'package:comugram/community.dart';
 import 'package:comugram/ProfileContent.dart';
 import 'package:flutter/cupertino.dart';
@@ -57,6 +58,7 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: _showAppbar
           ? AppBar(
+              automaticallyImplyLeading: false,
               backgroundColor: Colors.orange,
               title: Image.asset(
                 'images/comugram logo 4.png',
@@ -96,6 +98,18 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
+      floatingActionButton: _currentIndex == 3
+          ? FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                    this.context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => KomunitasForm()));
+              },
+              child: Icon(Icons.add),
+              backgroundColor: Colors.yellow,
+            )
+          : null,
     );
   }
 }

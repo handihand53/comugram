@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:comugram/Category.dart';
 import 'package:comugram/services/FirestoreServices.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:progress_dialog/progress_dialog.dart';
@@ -11,17 +9,25 @@ import 'model/Joined.dart';
 import 'model/Komunitas.dart';
 import 'model/User.dart';
 
-class Search extends StatefulWidget {
+class Category extends StatefulWidget {
+  String cat;
+
+  Category(this.cat);
+
   @override
-  _SearchState createState() => _SearchState();
+  _CategoryState createState() => _CategoryState(cat);
 }
 
-class _SearchState extends State<Search> {
+class _CategoryState extends State<Category> {
+  String cat;
+
+  _CategoryState(this.cat);
+
   FocusNode _focusNodeSearch;
+  List<Joined> listJoinedUser = List();
   TextEditingController search = TextEditingController();
   List<Komunitas> listKomunitas = new List();
   List<Joined> listJoined = List();
-  List<Joined> listJoinedUser = List();
   List<Widget> listSearch = new List();
   List<User> usr = new List();
   bool finish = false;
@@ -39,8 +45,13 @@ class _SearchState extends State<Search> {
   }
 
   Future<void> getKomunitasDataPopuler() async {
-    await Firestore.instance.collection('Komunitas').snapshots().listen((s) {
-      for (var d in s.documents) {
+    listKomunitas = [];
+    await Firestore.instance
+        .collection('Komunitas')
+        .where("kategori", isEqualTo: cat)
+        .getDocuments()
+        .then((data) {
+      data.documents.forEach((d) {
         listKomunitas.add(Komunitas(
           uid: d['id'],
           deskripsi: d['deskripsi'],
@@ -50,34 +61,12 @@ class _SearchState extends State<Search> {
           owner: d['owner'],
           tanggalBuat: d['tanggalBuat'],
         ));
-      }
-      finish = true;
-    });
-  }
-
-  Future<List<Joined>> getJoinedUserInKomunitas(String idKom) async {
-    print(idKom);
-    listJoinedUser = [];
-    FirebaseUser user = await FirebaseAuth.instance.currentUser();
-
-    await Firestore.instance
-        .collection("joined")
-        .where('id_komunitas', isEqualTo: idKom)
-        .getDocuments()
-        .then((snapshot) {
-      for (var data in snapshot.documents) {
-        listJoinedUser.add(
-          Joined(
-            uid: data['id_user'],
-            kom_id: data['id_komunitas'],
-          ),
-        );
-        print(data['id_user']);
-      }
+      });
+      setState(() {
+        finish = true;
+      });
     });
 
-    setState(() {});
-    return listJoinedUser;
   }
 
   Future<void> getJoinedKomunitas() async {
@@ -132,134 +121,112 @@ class _SearchState extends State<Search> {
     return _focusNodeSearch.hasFocus ? Colors.black : Colors.grey;
   }
 
-  Route _createRouteCategory(String cat) {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => Category(cat),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        var begin = Offset(0.0, 1.0);
-        var end = Offset.zero;
-        var curve = Curves.ease;
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-        return SlideTransition(
-          position: animation.drive(tween),
-          child: child,
-        );
-      },
-    );
-  }
+  Future<List<Joined>> getJoinedUserInKomunitas(String idKom) async {
+    print(idKom);
+    listJoinedUser = [];
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
 
-  Widget categoryCard(String text, String image, String cat) {
-    return Card(
-      elevation: 2,
-      child: InkWell(
-        onTap: () {
-          Navigator.of(context).push(_createRouteCategory(cat));
-        },
-        child: Container(
-          width: 80,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              CircleAvatar(
-                backgroundImage: ExactAssetImage(image),
-                radius: 18,
-                backgroundColor: Colors.grey.withOpacity(0.15),
-              ),
-              SizedBox(
-                height: 2,
-              ),
-              Text(
-                text,
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                ),
-              )
-            ],
+    await Firestore.instance
+        .collection("joined")
+        .where('id_komunitas', isEqualTo: idKom)
+        .getDocuments()
+        .then((snapshot) {
+      for (var data in snapshot.documents) {
+        listJoinedUser.add(
+          Joined(
+            uid: data['id_user'],
+            kom_id: data['id_komunitas'],
           ),
-        ),
-      ),
-    );
+        );
+        print(data['id_user']);
+      }
+    });
+
+    setState(() {});
+    return listJoinedUser;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    listSearch = [];
-    listPage();
-    return OKToast(
-      child: MaterialApp(
-        home: Scaffold(
-          body: SingleChildScrollView(
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  TextFormField(
-                    focusNode: _focusNodeSearch,
-                    controller: search,
-                    onEditingComplete: () {},
-                    textInputAction: TextInputAction.search,
-                    onFieldSubmitted: (val) {
-                      listKomunitas = [];
-                      searchComunity(val);
-                      setState(() {});
-                    },
-                    onChanged: (val) {
-                      finish = false;
-                      if (val == "") {
-                        listKomunitas = [];
-                        searchComunity(val);
-                        setState(() {});
-                      }
-                    },
-                    autofocus: false,
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                    decoration: InputDecoration(
-                      isDense: true,
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color: getPrefixIconColorSearch(),
-                      ),
-                      contentPadding: EdgeInsets.all(15.0),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.transparent),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.transparent),
-                      ),
-                      focusColor: Colors.orange,
-                      filled: true,
-                      hintStyle: TextStyle(color: Colors.grey[500]),
-                      hintText: "Cari",
-                      fillColor: Color.fromRGBO(245, 245, 245, 1),
+  void _showDialogPengikut(String id, ProgressDialog pD) async {
+    usr = [];
+    await getJoinedUserInKomunitas(id);
+    for (var x in listJoinedUser) {
+      await userProfile(x.uid);
+    }
+    await pD.hide();
+
+    showGeneralDialog(
+        barrierColor: Colors.black.withOpacity(0.5),
+        transitionBuilder: (context, a1, a2, widget) {
+          return Transform.scale(
+            scale: a1.value,
+            child: Opacity(
+              opacity: a1.value,
+              child: AlertDialog(
+                contentPadding: EdgeInsets.fromLTRB(15, 0, 15, 15),
+                titlePadding: EdgeInsets.fromLTRB(15.0, 15.0, 15.0, 10.0),
+                elevation: 3,
+                shape: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.transparent),
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+                title: Text('List pengikut (${usr.length})'),
+                content: ListTile(
+                  contentPadding: EdgeInsets.all(0),
+                  title: Container(
+                    height: 500.0,
+                    width: MediaQuery.of(context).size.width * 0.85,
+                    child: ListView.separated(
+                      padding: EdgeInsets.all(0),
+                      separatorBuilder: (context, index) {
+                        return Divider(
+                          color: Colors.grey,
+                        );
+                      },
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          onTap: () {},
+                          contentPadding: EdgeInsets.all(0),
+                          dense: true,
+                          leading: CircleAvatar(
+                            backgroundImage: usr[index].urlProfile != null
+                                ? NetworkImage(usr[index].urlProfile)
+                                : ExactAssetImage('images/user.png'),
+                            radius: 20,
+                            backgroundColor: Colors.grey.withOpacity(0.15),
+                          ),
+                          title: Text(
+                            usr[index].namaLengkap,
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        );
+                      },
+                      itemCount: usr.length,
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 15.0,
-                      vertical: 15.0,
+                ),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text(
+                      'Tutup',
+                      style: TextStyle(
+                        color: Colors.orange,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                    child: searchPage(),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
                   ),
                 ],
               ),
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void searchComunity(String s) async {
-    FirestoreServices firestoreServices = FirestoreServices();
-    listKomunitas = await firestoreServices.cariKomunitas(s);
-    finish = true;
-    setState(() {});
+          );
+        },
+        transitionDuration: Duration(milliseconds: 200),
+        barrierDismissible: true,
+        barrierLabel: '',
+        context: context,
+        pageBuilder: (context, animation1, animation2) {});
   }
 
   void _showDialog(String desc, String img, String name, String id) {
@@ -287,7 +254,7 @@ class _SearchState extends State<Search> {
                   dense: true,
                   contentPadding: EdgeInsets.all(0),
                   title: Container(
-                    width: 300,
+                    width: 200,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(5.0),
                       child: Image.network(
@@ -497,7 +464,7 @@ class _SearchState extends State<Search> {
                               ),
                               Padding(
                                 padding:
-                                    const EdgeInsets.symmetric(vertical: 6.0),
+                                const EdgeInsets.symmetric(vertical: 6.0),
                                 child: InkWell(
                                   onTap: () async {
                                     ProgressDialog pD = ProgressDialog(
@@ -536,153 +503,58 @@ class _SearchState extends State<Search> {
     );
   }
 
-  void _showDialogPengikut(String id, ProgressDialog pD) async {
-    usr = [];
-    await getJoinedUserInKomunitas(id);
-    for (var x in listJoinedUser) {
-      await userProfile(x.uid);
-    }
-    await pD.hide();
-
-    showGeneralDialog(
-        barrierColor: Colors.black.withOpacity(0.5),
-        transitionBuilder: (context, a1, a2, widget) {
-          return Transform.scale(
-            scale: a1.value,
-            child: Opacity(
-              opacity: a1.value,
-              child: AlertDialog(
-                contentPadding: EdgeInsets.fromLTRB(15, 0, 15, 15),
-                titlePadding: EdgeInsets.fromLTRB(15.0, 15.0, 15.0, 10.0),
-                elevation: 3,
-                shape: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.transparent),
-                  borderRadius: BorderRadius.circular(5.0),
-                ),
-                title: Text('List pengikut (${usr.length})'),
-                content: ListTile(
-                  contentPadding: EdgeInsets.all(0),
-                  title: Container(
-                    height: 500.0,
-                    width: MediaQuery.of(context).size.width * 0.85,
-                    child: ListView.separated(
-                      padding: EdgeInsets.all(0),
-                      separatorBuilder: (context, index) {
-                        return Divider(
-                          color: Colors.grey,
-                        );
-                      },
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          onTap: () {},
-                          contentPadding: EdgeInsets.all(0),
-                          dense: true,
-                          leading: CircleAvatar(
-                            backgroundImage: usr[index].urlProfile != null
-                                ? NetworkImage(usr[index].urlProfile)
-                                : ExactAssetImage('images/user.png'),
-                            radius: 20,
-                            backgroundColor: Colors.grey.withOpacity(0.15),
-                          ),
-                          title: Text(
-                            usr[index].namaLengkap,
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        );
-                      },
-                      itemCount: usr.length,
+  @override
+  Widget build(BuildContext context) {
+    listPage();
+    return OKToast(
+      child: MaterialApp(
+        home: Scaffold(
+          appBar: AppBar(
+            automaticallyImplyLeading: true,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () => Navigator.pop(context, false),
+            ),
+            title: Text(cat),
+            backgroundColor: Colors.orange,
+          ),
+          body: SingleChildScrollView(
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 15.0,
+                      vertical: 15.0,
                     ),
-                  ),
-                ),
-                actions: <Widget>[
-                  FlatButton(
-                    child: Text(
-                      'Tutup',
-                      style: TextStyle(
-                        color: Colors.orange,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
+                    child: contentPage(),
                   ),
                 ],
               ),
             ),
-          );
-        },
-        transitionDuration: Duration(milliseconds: 200),
-        barrierDismissible: true,
-        barrierLabel: '',
-        context: context,
-        pageBuilder: (context, animation1, animation2) {});
+          ),
+        ),
+      ),
+    );
   }
 
-  Widget searchPage() {
-    print(finish);
+  Widget contentPage() {
     setState(() {});
-    return search.text.length == 0
-        ? Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-                Text(
-                  'Comu Kategori',
-                  style: TextStyle(
-                    fontSize: 25,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  height: 80,
-                  child: ListView(
-                    shrinkWrap: true,
-                    scrollDirection: Axis.horizontal,
-                    children: <Widget>[
-                      categoryCard('Gaming', 'images/gaming.png', 'Gaming'),
-                      categoryCard('Masak', 'images/kitchen.png', 'Masak'),
-                      categoryCard('Olahraga', 'images/sport.png', 'Olahraga'),
-                      categoryCard('Belajar', 'images/study.png', 'Belajar'),
-                      categoryCard('Liburan', 'images/liburan.png', 'Liburan'),
-                      categoryCard(
-                          'Kesehatan', 'images/health.png', 'Kesehatan'),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  'Populer',
-                  style: TextStyle(
-                    fontSize: 25,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                listKomunitas.length == 0
-                    ? Center(
-                        child: CircularProgressIndicator(),
-                      )
-                    : Column(
-                        children: listSearch,
-                      ),
-              ])
-        : Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              finish ?
-              listKomunitas.length == 0 ?
-              Text('Belum ada komunitas', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),) : Column(
-                children: listSearch,
-              ) :Center(
-                child: CircularProgressIndicator(),
-              )
-            ],
-          );
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        finish ?
+            listKomunitas.length == 0 ?
+            Text('Belum ada komunitas', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),) : Column(
+          children: listSearch,
+        ) :Center(
+          child: CircularProgressIndicator(),
+        )
+      ],
+    );
   }
 }

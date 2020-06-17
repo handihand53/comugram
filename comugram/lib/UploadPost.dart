@@ -1,12 +1,20 @@
 import 'dart:io';
 
 import 'package:comugram/Home.dart';
+import 'package:comugram/MapsDetail.dart';
 import 'package:comugram/model/Komunitas.dart';
 import 'package:comugram/model/Post.dart';
 import 'package:comugram/services/FirestoreServices.dart';
+import 'package:comugram/services/GoogleMapsService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:geocoder/geocoder.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_webservice/places.dart';
+import 'package:location/location.dart' as LocationManager;
 import 'package:intl/intl.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'package:uuid/uuid.dart';
 
 class UploadPost extends StatefulWidget {
@@ -26,6 +34,8 @@ class _UploadPostState extends State<UploadPost> {
   TextEditingController locationController = TextEditingController();
   DateTime dateTime = DateTime.now();
   var uuid = Uuid();
+  GoogleMapsService googleMapsService;
+  String location, location_id;
 
   @override
   void initState() {
@@ -37,6 +47,7 @@ class _UploadPostState extends State<UploadPost> {
 
   void initKomunitas() async {
     FirebaseUser user = await _auth.currentUser();
+    googleMapsService = GoogleMapsService();
     String owner = user.uid;
     //List<Komunitas> komunitas = List<Komunitas>();
     komunitas = await firestoreServices.getJoinedKomunitas(owner);
@@ -71,6 +82,11 @@ class _UploadPostState extends State<UploadPost> {
 
   @override
   Widget build(Object context) {
+    ProgressDialog pD = ProgressDialog(
+      context,
+      type: ProgressDialogType.Normal,
+      isDismissible: false,
+    );
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(
@@ -85,6 +101,7 @@ class _UploadPostState extends State<UploadPost> {
                 style: TextStyle(color: Colors.black, fontSize: 20.0),
               ),
               onTap: () async {
+                pD.show();
                 String url = await firestoreServices
                     .uploadImgKomunitas(widget.imageFile);
                 String tgl = DateFormat('dd MMMM yyyy').format(dateTime);
@@ -94,11 +111,13 @@ class _UploadPostState extends State<UploadPost> {
                     id_post: uuid.v4(),
                     id_user: owner,
                     id_komunitas: _selectedkomunitas.uid,
-                    location: locationController.text,
+                    location: location,
                     imageUrl: url,
                     caption: captionController.text,
-                    tanggalBuat: tgl);
+                    tanggalBuat: tgl,
+                    location_id: location_id);
                 firestoreServices.insertPost(post);
+                pD.hide();
                 Navigator.pushReplacement(
                     context, MaterialPageRoute(builder: ((context) => Home())));
               },
@@ -139,11 +158,27 @@ class _UploadPostState extends State<UploadPost> {
         ),
         Padding(
           padding: const EdgeInsets.all(20.0),
-          child: TextField(
-            controller: locationController,
-            decoration: InputDecoration(
-              hintText: 'Add location',
-            ),
+          child: GestureDetector(
+            onTap: () async {
+              Prediction p = await googleMapsService.getPrediction(context);
+              if (p != null) {
+                location_id = p.placeId;
+                var arr = p.description.split(",");
+                location = arr[0];
+                print(location);
+                setState(() {});
+              }
+            },
+            child: location == null
+                ? Text("Add Location")
+                : Wrap(spacing: 8.0, runSpacing: 4.0, children: <Widget>[
+                    Icon(
+                      Icons.location_on,
+                      color: Colors.green,
+                      size: 30.0,
+                    ),
+                    Text(location),
+                  ]),
           ),
         ),
         komunitas.length == 0

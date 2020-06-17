@@ -5,6 +5,7 @@ class Komunitas {
   String namaKomunitas;
   String deskripsi;
   String owner;
+  String namaOwner;
   String tanggalBuat;
 
   Komunitas(
@@ -23,6 +24,7 @@ class Komunitas {
     this.namaKomunitas = komunitasMaps['namaKomunitas'];
     this.deskripsi = komunitasMaps['deskripsi'];
     this.owner = komunitasMaps['owner'];
+    this.namaOwner = komunitasMaps['namaOwner'];
     this.tanggalBuat = komunitasMaps['tanggalBuat'];
   }
   Map<String, dynamic> toMap() {
@@ -34,6 +36,7 @@ class Komunitas {
       'deskripsi': deskripsi,
       'owner': owner,
       'tanggalBuat': tanggalBuat,
+      'searchKomunitas': namaKomunitas.toUpperCase(),
     };
   }
 }

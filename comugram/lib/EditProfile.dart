@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:comugram/services/FirestoreServices.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'Validator.dart';
 import 'model/User.dart';
 
@@ -23,6 +23,7 @@ class _EditProfileState extends State<EditProfile> with Validation{
   FirestoreServices Fs = FirestoreServices();
   TextEditingController nameController = TextEditingController();
   TextEditingController UnameController = TextEditingController();
+  ProgressDialog pD;
   File imgPick;
 
   getImage(String result) async{
@@ -67,6 +68,7 @@ class _EditProfileState extends State<EditProfile> with Validation{
 
   @override
   Widget build(BuildContext context) {
+    ProgressDialog pD = ProgressDialog(context,type: ProgressDialogType.Normal,isDismissible: false,);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.orange,
@@ -200,6 +202,7 @@ class _EditProfileState extends State<EditProfile> with Validation{
                           onPressed: () async{
                             if(formKey.currentState.validate()){
                               formKey.currentState.save();
+                              await pD.show();
                               editUser.namaLengkap = nameController.text;
                               editUser.username = UnameController.text;
                               if(imgPick!=null){
@@ -209,6 +212,7 @@ class _EditProfileState extends State<EditProfile> with Validation{
                               }else{
                                 Fs.EditDataUser(editUser);
                               }
+                              await pD.hide();
                               Navigator.pop(context);
                             }
                           },

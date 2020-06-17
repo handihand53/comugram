@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:comugram/UploadPost.dart';
 import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
 class AddPostPage extends StatefulWidget {
@@ -32,34 +33,52 @@ class _AddPostPageState extends State<AddPostPage> {
             children: <Widget>[
               SimpleDialogOption(
                 child: Text('Choose from Gallery'),
-                onPressed: () {
-                  _pickImage('Gallery').then((selectedImage) {
-                    setState(() {
-                      imageFile = selectedImage;
-                    });
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: ((context) => UploadPost(
-                                  imageFile: imageFile,
-                                ))));
+                onPressed: () async {
+                  File selectedImage = await _pickImage('Gallery');
+                  File croppedImg = await ImageCropper.cropImage(
+                    sourcePath: selectedImage.path,
+                    aspectRatio: CropAspectRatio(
+                      ratioX: 1,
+                      ratioY: 1,
+                    ),
+                    compressQuality: 100,
+                    maxHeight: 700,
+                    maxWidth: 700,
+                  );
+                  setState(() {
+                    imageFile = croppedImg;
                   });
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: ((context) => UploadPost(
+                                imageFile: imageFile,
+                              ))));
                 },
               ),
               SimpleDialogOption(
                 child: Text('Take Photo'),
-                onPressed: () {
-                  _pickImage('Camera').then((selectedImage) {
-                    setState(() {
-                      imageFile = selectedImage;
-                    });
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: ((context) => UploadPost(
-                                  imageFile: imageFile,
-                                ))));
+                onPressed: () async {
+                  File selectedImage = await _pickImage('Camera');
+                  File croppedImg = await ImageCropper.cropImage(
+                    sourcePath: selectedImage.path,
+                    aspectRatio: CropAspectRatio(
+                      ratioX: 1,
+                      ratioY: 1,
+                    ),
+                    compressQuality: 100,
+                    maxHeight: 700,
+                    maxWidth: 700,
+                  );
+                  setState(() {
+                    imageFile = croppedImg;
                   });
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: ((context) => UploadPost(
+                                imageFile: imageFile,
+                              ))));
                 },
               ),
               SimpleDialogOption(

@@ -21,6 +21,7 @@ class _CommunityState extends State<Community> {
   FirestoreServices firestoreServices;
   FirebaseAuth _auth = FirebaseAuth.instance;
   List<Komunitas> komunitas = List<Komunitas>();
+  bool isEmpy = false;
 
   @override
   void initState() {
@@ -38,6 +39,7 @@ class _CommunityState extends State<Community> {
     String owner = user.uid;
     komunitas = await firestoreServices.getJoinedKomunitas(owner);
     print(komunitas.length);
+    if (komunitas.length == 0) isEmpy = true;
     setState(() {});
   }
 
@@ -83,11 +85,12 @@ class _CommunityState extends State<Community> {
                       ),
                       RaisedButton(
                         onPressed: () {
+                          print("uid: " + kom.uid);
                           Navigator.push(
                               this.context,
                               MaterialPageRoute(
                                   builder: (BuildContext context) =>
-                                      DetailCommunity()));
+                                      DetailCommunity(komunitas: kom)));
                         },
                         child: Text(
                           "Lihat",
@@ -96,7 +99,7 @@ class _CommunityState extends State<Community> {
                         color: Colors.orange,
                       ),
                       Text(
-                        kom.owner,
+                        kom.namaOwner,
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -204,35 +207,35 @@ class _CommunityState extends State<Community> {
         itemBuilder: (BuildContext context, int index) {
           return Center(
             child: Card(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  ListTile(
-                    leading: Image.network(
-                      komunitas[index].imageUrl,
-                      width: 50,
-                    ),
-                    title: GestureDetector(
-                      onTap: () {
-                        showAlert(context, komunitas[index]);
-                      },
-                      child: Text(
+              child: GestureDetector(
+                onTap: () {
+                  showAlert(context, komunitas[index]);
+                },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    ListTile(
+                      leading: Image.network(
+                        komunitas[index].imageUrl,
+                        width: 50,
+                      ),
+                      title: Text(
                         komunitas[index].namaKomunitas,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                    ),
-                    subtitle: Text(
-                      '1000 orang mengikuti komunitas ini',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
+                      subtitle: Text(
+                        '1000 orang mengikuti komunitas ini',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           );
@@ -244,19 +247,26 @@ class _CommunityState extends State<Community> {
       child: content,
     );
     // TODO: implement build
+    var children2 = <Widget>[
+      contentSearch,
+      komunitas.length == 0
+          ? Center(
+              child: isEmpy == true
+                  ? Text(
+                      'Belum ada Komunitas',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                    )
+                  : CircularProgressIndicator(),
+            )
+          : Expanded(child: listComunnity),
+    ];
     return Container(
       padding: EdgeInsets.all(15),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          contentSearch,
-          komunitas.length == 0
-              ? Center(
-                  child: CircularProgressIndicator(),
-                )
-              : Expanded(child: listComunnity),
-        ],
+        children: children2,
       ),
     );
   }

@@ -1,42 +1,42 @@
 {
   "project_info": {
-    "project_number": "271729496101",
-    "firebase_url": "https://flutter-comugram.firebaseio.com",
-    "project_id": "flutter-comugram",
-    "storage_bucket": "flutter-comugram.appspot.com"
+    "project_number": "655922184573",
+    "firebase_url": "https://flutter-comugram-280519.firebaseio.com",
+    "project_id": "flutter-comugram-280519",
+    "storage_bucket": "flutter-comugram-280519.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:271729496101:android:f9aac4f45af49b98a62fcc",
+        "mobilesdk_app_id": "1:655922184573:android:bfc7528f38b56a2a84cc14",
         "android_client_info": {
           "package_name": "id.ac.ukdw.comugram"
         }
       },
       "oauth_client": [
         {
-          "client_id": "271729496101-fff53n87lq5j4b5eppbb3o4nmfpqd2ha.apps.googleusercontent.com",
+          "client_id": "655922184573-1meoaaqrpvs5mofavhb86pchrsm9n17r.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "id.ac.ukdw.comugram",
-            "certificate_hash": "4f29ef7c312664e4bdec26828a210e3785e04cc8"
+            "certificate_hash": "e845e8c44abe05f0a2957d52fc611f87124f50d3"
           }
         },
         {
-          "client_id": "271729496101-erru02kgkbgdh09b090maump5dd8phav.apps.googleusercontent.com",
+          "client_id": "655922184573-bdterq9ep5o90f9236vjr2e2g4fh6mo9.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAgwSyTA1vpr77NnXJH5xKtQX65IXnVsuE"
+          "current_key": "AIzaSyDd6hTlCU5z-AadJVJAskRkpQmenYXEciw"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "271729496101-erru02kgkbgdh09b090maump5dd8phav.apps.googleusercontent.com",
+              "client_id": "655922184573-bdterq9ep5o90f9236vjr2e2g4fh6mo9.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
