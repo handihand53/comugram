@@ -1,6 +1,10 @@
 import 'package:comugram/detailCommunity.dart';
+import 'package:comugram/model/Post.dart';
+import 'package:comugram/model/User.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:oktoast/oktoast.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'model/Komunitas.dart';
 import 'model/Komunitas.dart';
@@ -20,27 +24,131 @@ class _OwnedContentProfileState extends State<OwnedContentProfile> {
   FirestoreServices firestoreServices;
   FirebaseAuth _auth = FirebaseAuth.instance;
   List<Komunitas> komunitas = List<Komunitas>();
+  bool isEmpy = false;
+  ScrollController scrollController = ScrollController();
 
   @override
   void initState() {
     firestoreServices = FirestoreServices();
-    getKomunitas();
+    onSearchTextChanged();
+    scrollController.addListener(() {
+      if (scrollController.position.maxScrollExtent ==
+          scrollController.offset) {
+        print("sscrol");
+      }
+    });
     setState(() {});
   }
+
+  // void _scrollListener() {
+  //   if (controller.offset >= controller.position.maxScrollExtent &&
+  //       !controller.position.outOfRange) {
+  //     print("at the end of list");
+  //   }
+  // }
 
   void printDtaa() async {
     print("data");
   }
 
-  void getKomunitas() async {
+  // void getKomunitas() async {
+  //   FirebaseUser user = await _auth.currentUser();
+  //   String owner = user.uid;
+  //   komunitas = await firestoreServices.getJoinedKomunitas(owner);
+  //   print(komunitas.length);
+  //   if (komunitas.length == 0) isEmpy = true;
+  //   setState(() {});
+  // }
+  String owner;
+  Future<void> onSearchTextChanged() async {
     FirebaseUser user = await _auth.currentUser();
-    String owner = user.uid;
-    komunitas = await firestoreServices.getOwnedKomunitas(owner);
-    print(komunitas.length);
+    owner = user.uid;
+    komunitas = searchController.text.length > 0
+        ? await firestoreServices.cariKomunitasJoined(
+        searchController.text, owner)
+        : await firestoreServices.getOwnedKomunitas(owner);
+    komunitas.length == 0 ? isEmpy = true : isEmpy = false;
     setState(() {});
   }
 
-  onSearchTextChanged(String text) async {}
+  void _showDialogPengikut(String id, ProgressDialog pD) async {
+    List<User> usr = await firestoreServices.getJoinedPeople(id);
+    await pD.hide();
+
+    showGeneralDialog(
+        barrierColor: Colors.black.withOpacity(0.5),
+        transitionBuilder: (context, a1, a2, widget) {
+          return Transform.scale(
+            scale: a1.value,
+            child: Opacity(
+              opacity: a1.value,
+              child: AlertDialog(
+                contentPadding: EdgeInsets.fromLTRB(15, 0, 15, 15),
+                titlePadding: EdgeInsets.fromLTRB(15.0, 15.0, 15.0, 10.0),
+                elevation: 3,
+                shape: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.transparent),
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+                title: Text('List pengikut (${usr.length})'),
+                content: ListTile(
+                  contentPadding: EdgeInsets.all(0),
+                  title: Container(
+                    height: 500.0,
+                    width: MediaQuery.of(context).size.width * 0.85,
+                    child: ListView.separated(
+                      padding: EdgeInsets.all(0),
+                      separatorBuilder: (context, index) {
+                        return Divider(
+                          color: Colors.grey,
+                        );
+                      },
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          onTap: () {},
+                          contentPadding: EdgeInsets.all(0),
+                          dense: true,
+                          leading: CircleAvatar(
+                            backgroundImage: usr[index].urlProfile != null
+                                ? NetworkImage(usr[index].urlProfile)
+                                : ExactAssetImage('images/user.png'),
+                            radius: 20,
+                            backgroundColor: Colors.grey.withOpacity(0.15),
+                          ),
+                          title: Text(
+                            usr[index].namaLengkap,
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        );
+                      },
+                      itemCount: usr.length,
+                    ),
+                  ),
+                ),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text(
+                      'Tutup',
+                      style: TextStyle(
+                        color: Colors.orange,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+        transitionDuration: Duration(milliseconds: 200),
+        barrierDismissible: true,
+        barrierLabel: '',
+        context: context,
+        pageBuilder: (context, animation1, animation2) {});
+  }
 
   showAlert(BuildContext context, Komunitas kom) {
     showDialog(
@@ -73,11 +181,22 @@ class _OwnedContentProfileState extends State<OwnedContentProfile> {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      Text(
-                        '1000 pengikut',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
+                      InkWell(
+                        onTap: () async {
+                          ProgressDialog pD = ProgressDialog(
+                            context,
+                            type: ProgressDialogType.Normal,
+                            isDismissible: false,
+                          );
+                          await pD.show();
+                          _showDialogPengikut(kom.uid, pD);
+                        },
+                        child: Text(
+                          'Lihat Pengikut',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.orange,
+                          ),
                         ),
                       ),
                       RaisedButton(
@@ -145,7 +264,12 @@ class _OwnedContentProfileState extends State<OwnedContentProfile> {
                     SizedBox(
                       width: 320.0,
                       child: RaisedButton(
-                        onPressed: () {},
+                        onPressed: () async {
+                          print(kom.joinedId);
+                          await firestoreServices.keluarKomunitas(kom.uid,owner);
+                          _refresh();
+                          Navigator.pop(context);
+                        },
                         child: Text(
                           "Berhenti Mengikuti",
                           style: TextStyle(color: Colors.white),
@@ -166,17 +290,25 @@ class _OwnedContentProfileState extends State<OwnedContentProfile> {
     Card search = Card(
       child: ListTile(
         leading: Icon(Icons.search),
-        title: TextField(
+        title: TextFormField(
           controller: searchController,
           decoration:
           new InputDecoration(hintText: 'Search', border: InputBorder.none),
-          onChanged: onSearchTextChanged,
+          textInputAction: TextInputAction.search,
+          onFieldSubmitted: (val) {
+            komunitas = List<Komunitas>();
+            setState(() {});
+            onSearchTextChanged();
+          },
         ),
         trailing: new IconButton(
           icon: new Icon(Icons.cancel),
           onPressed: () {
             searchController.clear();
-            onSearchTextChanged('');
+            isEmpy = false;
+            komunitas = List<Komunitas>();
+            setState(() {});
+            onSearchTextChanged();
           },
         ),
       ),
@@ -201,6 +333,7 @@ class _OwnedContentProfileState extends State<OwnedContentProfile> {
 
     ListView content = ListView.builder(
         itemCount: komunitas.length,
+        //controller: scrollController,
         itemBuilder: (BuildContext context, int index) {
           return Center(
             child: Card(
@@ -223,11 +356,22 @@ class _OwnedContentProfileState extends State<OwnedContentProfile> {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      subtitle: Text(
-                        '1000 orang mengikuti komunitas ini',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
+                      subtitle: InkWell(
+                        onTap: () async {
+                          ProgressDialog pD = ProgressDialog(
+                            context,
+                            type: ProgressDialogType.Normal,
+                            isDismissible: false,
+                          );
+                          await pD.show();
+                          _showDialogPengikut(komunitas[index].uid, pD);
+                        },
+                        child: Text(
+                          'Lihat Pengikut',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.orange,
+                          ),
                         ),
                       ),
                     ),
@@ -244,25 +388,34 @@ class _OwnedContentProfileState extends State<OwnedContentProfile> {
       child: content,
     );
     // TODO: implement build
+    var children2 = <Widget>[
+      contentSearch,
+      komunitas.length == 0
+          ? Center(
+        child: isEmpy == true
+            ? Text(
+          'Belum ada Komunitas',
+          style:
+          TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+        )
+            : CircularProgressIndicator(),
+      )
+          : Expanded(child: listComunnity),
+    ];
     return Container(
       padding: EdgeInsets.all(15),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          contentSearch,
-          komunitas.length == 0
-              ? Center(
-            child: CircularProgressIndicator(),
-          )
-              : Expanded(child: listComunnity),
-        ],
+        children: children2,
       ),
     );
   }
 
-  Future<Null> _refresh() {
+  Future<void> _refresh() {
+    //print("refresh");
+    komunitas = List<Komunitas>();
     setState(() {});
-    return null;
+    return onSearchTextChanged();
   }
 }
