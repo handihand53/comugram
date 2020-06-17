@@ -1,10 +1,13 @@
 import 'package:comugram/TambahKomunitas.dart';
+import 'package:comugram/services/FirestoreServices.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'Home.dart';
+import 'googleFormSignUp.dart';
+import 'model/User.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -359,10 +362,21 @@ class _LoginState extends State<Login> {
   }
 
   void doLoginGoogle() {
-    googleSignIn().then((FirebaseUser user) {
-      if (user != null)
-        Navigator.pushReplacement(this.context,
+    googleSignIn().then((FirebaseUser user) async{
+      FirestoreServices fs = FirestoreServices();
+      Map<String, dynamic> tempUser = await fs.selectUser(user.uid);
+      print(tempUser==null);
+
+      if (user != null){
+        if(tempUser==null) {
+          Navigator.pushReplacement(this.context,
+              MaterialPageRoute(builder: (BuildContext context) => GoogleFormSignUp()));
+        } else {
+          Navigator.pushReplacement(this.context,
             MaterialPageRoute(builder: (BuildContext context) => Home()));
+        }
+      }
+
     }).catchError((e) => print(e.toString()));
   }
 
