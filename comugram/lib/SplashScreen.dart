@@ -1,4 +1,7 @@
+import 'package:comugram/AddPostPage.dart';
+import 'package:comugram/CommentPage.dart';
 import 'package:comugram/Home.dart';
+import 'package:comugram/services/FirestoreServices.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -6,6 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'Login.dart';
 import 'TambahKomunitas.dart';
+import 'googleFormSignUp.dart';
 
 class SplashScreenPage extends StatefulWidget {
   @override
@@ -26,10 +30,19 @@ class _SplashScreenState extends State<SplashScreenPage> {
 
   Future<void> navigationPage() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    FirestoreServices fs = FirestoreServices();
+    //Map<String, dynamic> tempUser = await fs.selectUser(user.uid);
     if (user != null) {
-      Navigator.pushReplacement(this.context, MaterialPageRoute(builder: (BuildContext context) => Home()));
-    } else{
-      Navigator.pushReplacement(this.context, MaterialPageRoute(builder: (BuildContext context) => Login()));
+      // if(tempUser==null) {
+      //   Navigator.pushReplacement(this.context,
+      //       MaterialPageRoute(builder: (BuildContext context) => GoogleFormSignUp()));
+      // } else {
+      Navigator.pushReplacement(this.context,
+          MaterialPageRoute(builder: (BuildContext context) => Home()));
+      // }
+    } else {
+      Navigator.pushReplacement(this.context,
+          MaterialPageRoute(builder: (BuildContext context) => Login()));
     }
   }
 

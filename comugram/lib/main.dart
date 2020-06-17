@@ -1,3 +1,4 @@
+import 'package:comugram/Category.dart';
 import 'package:comugram/Home.dart';
 import 'package:comugram/IntroductionPage.dart';
 import 'package:comugram/RegisterForm.dart';
@@ -17,6 +18,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         primaryColor: Colors.orange,
+        accentColor: Colors.orange,
       ),
       initialRoute: '/',
       routes: <String, WidgetBuilder>{

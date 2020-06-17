@@ -1,9 +1,13 @@
 import 'package:comugram/TambahKomunitas.dart';
+import 'package:comugram/services/FirestoreServices.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'Home.dart';
+import 'googleFormSignUp.dart';
+import 'model/User.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -49,6 +53,11 @@ class _LoginState extends State<Login> {
   }
 
   Widget build(BuildContext context) {
+    ProgressDialog pD = ProgressDialog(
+      context,
+      type: ProgressDialogType.Normal,
+      isDismissible: false,
+    );
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -176,7 +185,22 @@ class _LoginState extends State<Login> {
                           ),
                         ],
                       ),
-                      onPressed: doLogin,
+                      onPressed: () async {
+                        await pD.show();
+                        await doLogin(pD).then((s) async {
+                          FirebaseUser usr = s;
+                          if (s != null){
+                            await pD.hide();
+                            Navigator.pushReplacement(
+                                this.context,
+                                MaterialPageRoute(
+                                    builder: (BuildContext context) => Home()));
+                          } else {
+                            await pD.hide();
+                            showAlertDialog_Fail(context, 'Login gagal, Email atau Password yang anda masukkan salah!');
+                          }
+                        });
+                      },
                     ),
                   ),
                   SizedBox(
@@ -214,7 +238,7 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                     onTap: () {
-                      Navigator.pushNamed(context, '/register');
+                      Navigator.popAndPushNamed(context, '/register');
                     },
                   ),
                   SizedBox(
@@ -291,11 +315,43 @@ class _LoginState extends State<Login> {
     );
   }
 
-  void doLogin() {
-    signIn().then((FirebaseUser user) {
-      if (user != null)
-        Navigator.pushReplacement(this.context, MaterialPageRoute(builder: (BuildContext context) => Home()));
-    }).catchError((e) => print(e.toString()));
+  void showAlertDialog_Fail(BuildContext context, String msg) {
+    Widget okButton = FlatButton(
+      child: Text("OK"),
+      onPressed: () {
+        Navigator.pop(context);
+      },
+    );
+    AlertDialog alert = AlertDialog(
+      title: Text(
+        "Perhatian!",
+        style: TextStyle(color: Colors.red),
+      ),
+      content: Text(
+        msg,
+      ),
+      actions: [
+        okButton,
+      ],
+    );
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  Future<FirebaseUser> doLogin(ProgressDialog pD) async {
+    FirebaseUser usr = null;
+    await signIn().then((FirebaseUser user) async {
+      if (user != null) {
+        usr = user;
+      }
+    }).catchError((s) {
+      print(s);
+    });
+    return usr;
   }
 
   Future<FirebaseUser> signIn() async {
@@ -306,9 +362,21 @@ class _LoginState extends State<Login> {
   }
 
   void doLoginGoogle() {
-    googleSignIn().then((FirebaseUser user) {
-      if (user != null)
-        Navigator.pushReplacement(this.context, MaterialPageRoute(builder: (BuildContext context) => Home()));
+    googleSignIn().then((FirebaseUser user) async{
+      FirestoreServices fs = FirestoreServices();
+      Map<String, dynamic> tempUser = await fs.selectUser(user.uid);
+      print(tempUser==null);
+
+      if (user != null){
+        if(tempUser==null) {
+          Navigator.pushReplacement(this.context,
+              MaterialPageRoute(builder: (BuildContext context) => GoogleFormSignUp()));
+        } else {
+          Navigator.pushReplacement(this.context,
+            MaterialPageRoute(builder: (BuildContext context) => Home()));
+        }
+      }
+
     }).catchError((e) => print(e.toString()));
   }
 
@@ -323,8 +391,6 @@ class _LoginState extends State<Login> {
         (await FirebaseAuth.instance.signInWithCredential(credential)).user;
     return user;
   }
-
-//  void doLoginFacebook() {}
 }
 
 class CustomShapeClipper extends CustomClipper<Path> {
