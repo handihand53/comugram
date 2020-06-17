@@ -1,6 +1,8 @@
+import 'package:comugram/MapsDetail.dart';
 import 'package:comugram/model/Komunitas.dart';
 import 'package:comugram/model/Post.dart';
 import 'package:comugram/services/FirestoreServices.dart';
+import 'package:comugram/services/GoogleMapsService.dart';
 import 'package:flutter/material.dart';
 
 import 'model/User.dart';
@@ -15,11 +17,12 @@ class DetailCommunity extends StatefulWidget {
 
 class _DetailCommunityState extends State<DetailCommunity> {
   FirestoreServices firestoreServices;
+  GoogleMapsService googleMapsService;
   List post = List();
   @override
   void initState() {
     super.initState();
-
+    googleMapsService = GoogleMapsService();
     firestoreServices = FirestoreServices();
     getPost();
     setState(() {});
@@ -67,7 +70,15 @@ class _DetailCommunityState extends State<DetailCommunity> {
                   ),
                 ),
                 InkWell(
-                  onTap: () => print('tes'),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: ((context) => MapsDetail(
+                                  id: post['post'].location_id,
+                                  desc: post['post'].location,
+                                ))));
+                  },
                   child: Text(
                     post['post'].location,
                     style: TextStyle(

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comugram/CommentPage.dart';
+import 'package:comugram/MapsDetail.dart';
 import 'package:comugram/model/Komunitas.dart';
 import 'package:comugram/model/User.dart';
 import 'package:comugram/services/FirestoreServices.dart';
@@ -378,7 +379,7 @@ class _HomeContentState extends State<HomeContent> {
                       ),
                     ),
                     InkWell(
-                      onTap: () => print('tes'),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => MapsDetail(desc: x.location,id: x.location_id))),
                       child: Text(
                         x.location,
                         style: TextStyle(
