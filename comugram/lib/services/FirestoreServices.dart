@@ -7,13 +7,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../model/Komunitas.dart';
-import '../model/Komunitas.dart';
-import '../model/Komunitas.dart';
-import '../model/Komunitas.dart';
-import '../model/Komunitas.dart';
-import '../model/Komunitas.dart';
-import '../model/Komunitas.dart';
-import '../model/Komunitas.dart';
 import '../commentSession.dart';
 import '../model/User.dart';
 
@@ -62,6 +55,10 @@ class FirestoreServices {
       'id_user': uid,
       'id_komunitas': id,
     });
+  }
+
+  Future<void> unjoinKomunitas(String id) {
+    Firestore.instance.collection('joined').document(id).delete();
   }
 
   Future<Map<String, dynamic>> selectNameKomunitas(String komId) async {
@@ -115,6 +112,40 @@ class FirestoreServices {
     return komunitas;
   }
 
+  Future<List<Komunitas>> cariKomunitasJoined(String name, String uid) async {
+    List<Komunitas> komunitas = List<Komunitas>();
+    List<String> idKomunitas = List<String>();
+    await Firestore.instance
+        .collection("joined")
+        .where("id_user", isEqualTo: uid)
+        .getDocuments()
+        .then((value) {
+      value.documents.forEach((element) {
+        idKomunitas.add(element['id_komunitas']);
+      });
+    });
+
+    QuerySnapshot query = await Firestore.instance
+        .collection("Komunitas")
+        .orderBy("searchKomunitas")
+        .startAt([name.toUpperCase()]).endAt(
+            [name.toUpperCase() + '\uf8ff']).getDocuments();
+
+    List<DocumentSnapshot> snapshot = query.documents;
+
+    for (DocumentSnapshot element in snapshot) {
+      if (idKomunitas.contains(element['id'])) {
+        Map<String, dynamic> tempKomunitas = element.data;
+        Map<String, dynamic> tempUser =
+            await selectUser(tempKomunitas['owner']);
+        tempKomunitas['namaOwner'] = tempUser['namaLengkap'];
+        komunitas.add(Komunitas.fromMap(tempKomunitas));
+      }
+    }
+
+    return komunitas;
+  }
+
   Future<List<Komunitas>> getJoinedKomunitas(String uid) async {
     List<Komunitas> komunitas = List<Komunitas>();
 
@@ -130,16 +161,29 @@ class FirestoreServices {
           await selectNameKomunitas(element['id_komunitas']);
       Map<String, dynamic> tempUser = await selectUser(tempKomunitas['owner']);
       tempKomunitas['namaOwner'] = tempUser['namaLengkap'];
+      tempKomunitas['joinedId'] = element.documentID;
       Komunitas kom = Komunitas.fromMap(tempKomunitas);
       komunitas.add(kom);
-      // print("data komunitas: ${komunitas.length}");
-      // print("id_user ${tempUser['namaLengkap']}");
-      // await selectNameKomunitas(element['id_komunitas']).then((value) {
-      //   Komunitas kom = Komunitas.fromMap(value);
-      //   komunitas.add(kom);
-      // });
     }
     return komunitas;
+  }
+
+  Future<List<User>> getJoinedPeople(String uid) async {
+    List<User> user = List<User>();
+
+    QuerySnapshot query = await Firestore.instance
+        .collection("joined")
+        .where("id_komunitas", isEqualTo: uid)
+        .getDocuments();
+
+    List<DocumentSnapshot> snapshot = query.documents;
+
+    for (DocumentSnapshot element in snapshot) {
+      Map<String, dynamic> tempUser = await selectUser(element['id_user']);
+      User usr = User.fromMap(tempUser);
+      user.add(usr);
+    }
+    return user;
   }
 
   //uploadpost
@@ -248,7 +292,10 @@ class FirestoreServices {
   }
 
   Future<void> InsertDataComment(Comments com) async {
-    await Firestore.instance.collection('Comments').document(com.id_comment).setData(com.toMap());
+    await Firestore.instance
+        .collection('Comments')
+        .document(com.id_comment)
+        .setData(com.toMap());
     print('print insert data');
   }
 }

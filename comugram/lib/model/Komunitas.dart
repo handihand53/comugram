@@ -7,7 +7,7 @@ class Komunitas {
   String owner;
   String namaOwner;
   String tanggalBuat;
-
+  String joinedId;
   Komunitas(
       {this.uid,
       this.kategori,
@@ -26,6 +26,7 @@ class Komunitas {
     this.owner = komunitasMaps['owner'];
     this.namaOwner = komunitasMaps['namaOwner'];
     this.tanggalBuat = komunitasMaps['tanggalBuat'];
+    this.joinedId = komunitasMaps['joinedId'];
   }
   Map<String, dynamic> toMap() {
     return {

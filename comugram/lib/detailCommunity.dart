@@ -1,3 +1,4 @@
+import 'package:comugram/CommentPage.dart';
 import 'package:comugram/MapsDetail.dart';
 import 'package:comugram/model/Komunitas.dart';
 import 'package:comugram/model/Post.dart';
@@ -18,6 +19,8 @@ class DetailCommunity extends StatefulWidget {
 class _DetailCommunityState extends State<DetailCommunity> {
   FirestoreServices firestoreServices;
   GoogleMapsService googleMapsService;
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      new GlobalKey<RefreshIndicatorState>();
   List post = List();
   bool isEmpty = false;
   @override
@@ -29,11 +32,19 @@ class _DetailCommunityState extends State<DetailCommunity> {
     setState(() {});
   }
 
-  void getPost() async {
+  Future<void> getPost() async {
     post = await firestoreServices.getPostKomunitas2(widget.komunitas.uid);
-    if (post.length == 0) isEmpty = true;
+    post.length == 0 ? isEmpty = true : isEmpty = false;
     setState(() {});
     print(post.length);
+  }
+
+  Future<void> _refresh() {
+    print("refresh");
+
+    post = List();
+    setState(() {});
+    return getPost();
   }
 
   @override
@@ -118,7 +129,13 @@ class _DetailCommunityState extends State<DetailCommunity> {
                     'View all comments',
                     style: TextStyle(color: Colors.grey),
                   ),
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                CommentPage(post['post'].id_post)));
+                  },
                 ),
               ),
               Padding(
@@ -130,6 +147,47 @@ class _DetailCommunityState extends State<DetailCommunity> {
       );
     }
 
+    var content = ListView.builder(
+      itemCount: post.length,
+      itemBuilder: (BuildContext context, int index) {
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            header(post[index]),
+            Flexible(
+              fit: FlexFit.loose,
+              child: new Image.network(
+                post[index]['post'].imageUrl,
+                fit: BoxFit.cover,
+              ),
+            ),
+            footer(post[index]),
+          ],
+        );
+      },
+    );
+
+    RefreshIndicator listComunnity = RefreshIndicator(
+      key: _refreshIndicatorKey,
+      onRefresh: _refresh,
+      child: content,
+    );
+    var children2 = <Widget>[
+      post.length == 0
+          ? Center(
+              child: isEmpty == true
+                  ? Text(
+                      'Belum ada Postingan',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                    )
+                  : CircularProgressIndicator(),
+            )
+          : Expanded(child: listComunnity),
+    ];
+
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(
@@ -140,37 +198,11 @@ class _DetailCommunityState extends State<DetailCommunity> {
           height: 40,
         ),
       ),
-      body: post.length == 0
-          ? Center(
-              child: isEmpty == true
-                  ? Text(
-                      'Belum ada Postingan',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                    )
-                  : CircularProgressIndicator(),
-            )
-          : ListView.builder(
-              itemCount: post.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    header(post[index]),
-                    Flexible(
-                      fit: FlexFit.loose,
-                      child: new Image.network(
-                        post[index]['post'].imageUrl,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    footer(post[index]),
-                  ],
-                );
-              },
-            ),
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: children2,
+      ),
     );
   }
 }
