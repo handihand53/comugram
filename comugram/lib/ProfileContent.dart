@@ -10,6 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'AboutUs.dart';
 import 'JoinedContentProfile.dart';
 import 'community.dart';
 import 'model/User.dart';
@@ -116,7 +117,13 @@ class _ProfileContentState extends State<ProfileContent>
                             MaterialPageRoute(
                                 builder: (BuildContext context) =>
                                     ResetPassword()));
-                      } else {
+                      } else if (result == 'pickUs'){
+                        Navigator.push(
+                            this.context,
+                            MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    AboutUs()));
+                      }else {
                         print(result); //
                         SignOut();
                         Navigator.pushReplacement(
@@ -126,6 +133,20 @@ class _ProfileContentState extends State<ProfileContent>
                       }
                     },
                     itemBuilder: (BuildContext context) => [
+                      PopupMenuItem(
+                          value: 'pickUs',
+                          child: Row(
+                            children: <Widget>[
+                              Icon(
+                                Icons.info,
+                                color: Colors.orange,
+                              ),
+                              SizedBox(
+                                width: 5,
+                              ),
+                              Text('Tentang kami'),
+                            ],
+                          )),
                       PopupMenuItem(
                           value: 'pickReset',
                           child: Row(
