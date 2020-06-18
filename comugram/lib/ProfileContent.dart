@@ -46,8 +46,7 @@ class _ProfileContentState extends State<ProfileContent>
       });
     });
     await Firestore.instance
-        .collection('Post')
-        .where('id_user', isEqualTo: profile.uid)
+        .collectionGroup('items').where('id_user', isEqualTo: profile.uid)
         .getDocuments()
         .then((value) {
       setState(() {
@@ -236,18 +235,18 @@ class _ProfileContentState extends State<ProfileContent>
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceAround,
                                   children: <Widget>[
-                                    // Column(
-                                    //   children: <Widget>[
-                                    //     // cPost == null? CircularProgressIndicator() : Text("$cPost", style: TextStyle(
-                                    //     //   fontSize: 20,
-                                    //     //   fontWeight: FontWeight.bold,
-                                    //     // ),),
-                                    //     // Text("Post", style: TextStyle(
-                                    //     //   color: Colors.orange,
-                                    //     //   fontSize: 15,
-                                    //     // ),),
-                                    //   ],
-                                    // ),
+                                     Column(
+                                       children: <Widget>[
+                                          cPost == null? CircularProgressIndicator() : Text("$cPost", style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                          ),),
+                                          Text("Post", style: TextStyle(
+                                            color: Colors.orange,
+                                            fontSize: 15,
+                                          ),),
+                                       ],
+                                     ),
                                     Column(
                                       children: <Widget>[
                                         cOwn == null
