@@ -267,16 +267,15 @@ class _LoginState extends State<Login> {
                           padding: EdgeInsets.symmetric(horizontal: 10.0),
                           child: Padding(
                             padding: EdgeInsets.symmetric(horizontal: 5),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: <Widget>[
-                                Image.asset(
+                            child: ListTile(
+                              contentPadding: EdgeInsets.all(0),
+                              dense: true,
+                                leading:Image.asset(
                                   'images/google.png',
                                   height: 40.0,
                                   width: 40.0,
                                 ),
-                                Text("Sign in with Google"),
-                              ],
+                              title: Text("Sign in with Google"),
                             ),
                           ),
                           onPressed: doLoginGoogle,
