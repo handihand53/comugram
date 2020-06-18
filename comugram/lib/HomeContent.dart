@@ -61,7 +61,7 @@ class _HomeContentState extends State<HomeContent> {
       ),
     );
 
-    if (s.length > 100) {
+    if (s.length > 10000) {
       textSpan.add(
         TextSpan(
           text: s.substring(0, 112),
