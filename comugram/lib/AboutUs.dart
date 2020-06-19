@@ -24,10 +24,10 @@ class AboutUs extends StatelessWidget{
                   Image.asset('images/comugram logo 4.png', width: 300, height: 300,),
                   Text(
                     'Comugram wadah anda berkomunitas, \nbagikan kegiatan anda ke orang orang yang berada dalam komunitas anda.\n\n'
-                        '\ndibuat oleh mahasiswa\n Universitas Kristen Duta Wacana:\n'
-                        '\nWilhelmus Krisvan\t71170144'
-                        '\nHandi Hermawan\t71170146'
-                        '\nWayan Edi Sudarma\t71170202\n',
+                        '\ndibuat oleh :\n'
+                        '\nWilhelmus Krisvan'
+                        '\nHandi Hermawan'
+                        '\nWayan Edi Sudarma\n',
                     style: TextStyle(fontSize: 16, ),
                     textAlign: TextAlign.center,
                   ),

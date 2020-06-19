@@ -3,6 +3,7 @@ import 'package:comugram/EditProfile.dart';
 import 'package:comugram/HomeContent.dart';
 import 'package:comugram/Login.dart';
 import 'package:comugram/OwnedContentProfile.dart';
+import 'package:comugram/PostContentProfile.dart';
 import 'package:comugram/ResetPassword.dart';
 import 'package:comugram/services/FirestoreServices.dart';
 import 'package:flutter/widgets.dart';
@@ -182,7 +183,7 @@ class _ProfileContentState extends State<ProfileContent>
               ],
             ),
             body: DefaultTabController(
-              length: 2,
+              length: 3,
               child: NestedScrollView(
                 headerSliverBuilder: (context, _) {
                   return [
@@ -370,6 +371,10 @@ class _ProfileContentState extends State<ProfileContent>
                         ),
                         tabs: [
                           Tab(
+                            icon: Icon(Icons.apps),
+                            text: 'Post',
+                          ),
+                          Tab(
                             icon: Icon(Icons.supervised_user_circle),
                             text: 'Owned Komunitas',
                           ),
@@ -383,6 +388,7 @@ class _ProfileContentState extends State<ProfileContent>
                     Expanded(
                       child: TabBarView(
                         children: [
+                          PostContentProfile(),
                           OwnedContentProfile(),
                           JoinedContentProfile(),
                         ],
