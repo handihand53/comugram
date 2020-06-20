@@ -60,7 +60,7 @@ class _CommentPageState extends State<CommentPage> {
     await Fs.InsertDataComment(komentar);
     setState(() {
       getComments();
-      //buildCommentList();
+      buildCommentList();
     });
   }
 
@@ -104,8 +104,10 @@ class _CommentPageState extends State<CommentPage> {
             ),
             trailing: OutlineButton(
               onPressed: () async {
-                FirebaseUser user = await FirebaseAuth.instance.currentUser();
-                await _addComment(user.uid, _commentController.text);
+                if(_commentController.text !=''){
+                  FirebaseUser user = await FirebaseAuth.instance.currentUser();
+                  await _addComment(user.uid, _commentController.text);
+                }
               },
               borderSide: BorderSide.none,
               child: Icon(Icons.send),

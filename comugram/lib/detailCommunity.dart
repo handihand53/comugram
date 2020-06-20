@@ -193,7 +193,7 @@ class _DetailCommunityState extends State<DetailCommunity> {
       appBar: AppBar(
         backgroundColor: Colors.orange,
         title: Image.asset(
-          'images/comugram logo 4.png',
+          'images/comugramlogo4.png',
           width: 120,
           height: 40,
         ),

@@ -38,7 +38,7 @@ class AboutUs extends StatelessWidget{
             Container(
               alignment: Alignment.bottomCenter,
               margin: EdgeInsets.only(bottom: 20),
-              child:Text('Copyright \u00a9 2020 by Comugram\'s Team',),
+              child:Text('\nVersion : 1.0.0\nCopyright \u00a9 2020 by Comugram\'s Team',),
             )
           ],
         )

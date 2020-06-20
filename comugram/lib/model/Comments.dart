@@ -75,7 +75,7 @@ class Comments extends StatelessWidget {
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Text(username),
+          Text(username,style: TextStyle(fontWeight: FontWeight.bold),),
           Text(waktu),
         ],
       ),
