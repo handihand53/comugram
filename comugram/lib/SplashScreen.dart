@@ -56,7 +56,7 @@ class _SplashScreenState extends State<SplashScreenPage> {
             Text(''),
             Center(
               child: Image.asset(
-                'images/comugram logo 2.png',
+                'images/comugramlogo2.png',
                 width: 500,
                 height: 450,
               ),

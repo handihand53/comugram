@@ -89,7 +89,7 @@ class _LoginState extends State<Login> {
                     height: 140,
                   ),
                   Image.asset(
-                    'images/comugram logo 1.png',
+                    'images/comugramlogo1.png',
                     width: 330,
                     height: 100,
                   ),

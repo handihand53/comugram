@@ -20,6 +20,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int _currentIndex = 0;
   bool _showAppbar = true;
+  Image image;
 
   void onTabTapped(int index) {
     setState(() {
@@ -35,6 +36,13 @@ class _HomeState extends State<Home> {
         _showAppbar = false;
       }
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    image = Image.asset("images/comugramlogo4.png",width: 120,
+      height: 40,);
   }
 
   // tolong nanti di ganti bagian ini
@@ -60,11 +68,7 @@ class _HomeState extends State<Home> {
           ? AppBar(
               automaticallyImplyLeading: false,
               backgroundColor: Colors.orange,
-              title: Image.asset(
-                'images/comugram logo 4.png',
-                width: 120,
-                height: 40,
-              ),
+              title: image,
             )
           : PreferredSize(
               child: Container(),
