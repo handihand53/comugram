@@ -321,6 +321,26 @@ class FirestoreServices {
     return postResult;
   }
 
+  Future<List> getPostProfile(String uid) async {
+    List postResult = List();
+    QuerySnapshot query = await Firestore.instance
+        .collectionGroup("items").where('id_user', isEqualTo: uid)
+        .getDocuments();
+
+    List<DocumentSnapshot> snapshot = query.documents;
+
+    for (DocumentSnapshot element in snapshot) {
+      Map<String, dynamic> tempUser = await selectUser(element['id_user']);
+      Map<String, dynamic> post = element.data;
+      Map<String, dynamic> temp = Map<String, dynamic>();
+      temp['user'] = User.fromMap(tempUser);
+      temp['post'] = Post.fromMap(post);
+      postResult.add(temp);
+    }
+
+    return postResult;
+  }
+
   Future<void> InsertDataComment(Comments com) async {
     await Firestore.instance
         .collection('Comments')
